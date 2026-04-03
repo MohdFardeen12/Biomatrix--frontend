@@ -19,7 +19,7 @@ export type CSRRow = {
   authenticated: number
   count: number
   feedback: string
-  document?: File | null
+  // document?: File | null
   documentName?: string
   date: string
   status: string
@@ -45,14 +45,14 @@ export function csrCountActiveFilters(f: CSRActiveFilters) {
 // ─── Default data ─────────────────────────────────────────────────────────────
 
 const defaultFeedbackData: CSRRow[] = [
-  { id: "A1B2C", customer: "John Smith",     email: "john.smith@example.com", authenticated: 38,  count: 42, feedback: "Excellent product! Exam preparation tools are very comprehensive.",        documentName: "exam_report_march.pdf",  date: "2024-03-15", status: "Resolved",    rating: 5 },
-  { id: "D3E4F", customer: "Sarah Johnson",  email: "sarah.j@example.com",    authenticated: 28,  count: 28, feedback: "Good analytics features, but could use more customization options.",      documentName: "analytics_feedback.png", date: "2024-03-14", status: "Resolved",    rating: 4 },
-  { id: "G5H6I", customer: "Michael Chen",   email: "m.chen@example.com",     authenticated: 10,  count: 15, feedback: "Perfect for creating assessments. Very intuitive interface.",              documentName: undefined,               date: "2024-03-13", status: "Resolved",    rating: 5 },
-  { id: "J7K8L", customer: "Emily Davis",    email: "emily.d@example.com",    authenticated: 7,   count: 7,  feedback: "Had some issues with the reporting feature. Support is helping.",        documentName: "issue_screenshot.jpg",   date: "2024-03-12", status: "In Progress", rating: 3 },
-  { id: "M9N0P", customer: "Robert Wilson",  email: "r.wilson@example.com",   authenticated: 53,  count: 63, feedback: "The insights provided have significantly improved our pass rates.",       documentName: "pass_rate_report.pdf",   date: "2024-03-11", status: "Resolved",    rating: 5 },
-  { id: "Q1R2S", customer: "Lisa Anderson",  email: "l.anderson@example.com", authenticated: 10,  count: 11, feedback: "Great tool for creating varied question types across exams.",             documentName: undefined,               date: "2024-03-10", status: "Resolved",    rating: 4 },
-  { id: "T3U4V", customer: "David Martinez", email: "d.martinez@example.com", authenticated: 3,   count: 3,  feedback: "Experiencing technical difficulties with batch processing module.",      documentName: "error_log.pdf",          date: "2024-03-09", status: "Pending",     rating: 2 },
-  { id: "W5X6Y", customer: "Demo Center",    email: "demoemail@example.com",  authenticated: 79,  count: 89, feedback: "Outstanding support team and excellent overall product quality.",        documentName: "support_ticket.jpeg",    date: "2024-03-08", status: "Resolved",    rating: 5 },
+  { id: "A1B2C", customer: "John Smith",     email: "john.smith@example.com", authenticated: 38,  count: 42, feedback: "Excellent product! Exam preparation tools are very comprehensive.",      documentName: "exam_report_march.pdf",     date: "2024-03-15",   status: "Resolved",     rating: 5 },
+  { id: "D3E4F", customer: "Sarah Johnson",  email: "sarah.j@example.com",    authenticated: 28,  count: 28, feedback: "Good analytics features, but could use more customization options.",     documentName: "analytics_feedback.png",    date: "2024-03-14",   status: "Resolved",     rating: 4 },
+  { id: "G5H6I", customer: "Michael Chen",   email: "m.chen@example.com",     authenticated: 10,  count: 15, feedback: "Perfect for creating assessments. Very intuitive interface.",            documentName: "satisfaction_report.pdf",   date: "2024-03-13",   status: "Resolved",     rating: 5 },
+  { id: "J7K8L", customer: "Emily Davis",    email: "emily.d@example.com",    authenticated: 7,   count: 7,  feedback: "Had some issues with the reporting feature. Support is helping.",        documentName: "issue_screenshot.jpg",      date: "2024-03-12",   status: "In Progress",  rating: 3 },
+  { id: "M9N0P", customer: "Robert Wilson",  email: "r.wilson@example.com",   authenticated: 53,  count: 63, feedback: "The insights provided have significantly improved our pass rates.",      documentName: "pass_rate_report.pdf",      date: "2024-03-11",   status: "Resolved",     rating: 5 },
+  { id: "Q1R2S", customer: "Lisa Anderson",  email: "l.anderson@example.com", authenticated: 10,  count: 11, feedback: "Great tool for creating varied question types across exams.",            documentName: "put_report.jpg",            date: "2024-03-10",   status: "Resolved",     rating: 4 },
+  { id: "T3U4V", customer: "David Martinez", email: "d.martinez@example.com", authenticated: 3,   count: 3,  feedback: "Experiencing technical difficulties with batch processing module.",      documentName: "error_log.pdf",             date: "2024-03-09",   status: "Pending",      rating: 2 },
+  { id: "W5X6Y", customer: "Demo Center",    email: "demoemail@example.com",  authenticated: 79,  count: 89, feedback: "Outstanding support team and excellent overall product quality.",        documentName: "support_ticket.jpeg",       date: "2024-03-08",   status: "Resolved",     rating: 5 },
 ]
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -86,9 +86,10 @@ function StatusBadge({ status }: { status: string }) {
 //   )
 // } 
 
-function DocumentCell({ documentName, rowId, onUpload, onRemove }: {
+function DocumentCell({ documentName, rowId, onRemove }: {
   documentName?: string; rowId: string
-  onUpload: (id: string, file: File) => void
+  //onUpload(was present btw rowid-onremove)
+  // onUpload: (id: string, file: File) => void
   onRemove: (id: string) => void
 }) {
   const inputRef = React.useRef<HTMLInputElement>(null)
@@ -108,11 +109,11 @@ function DocumentCell({ documentName, rowId, onUpload, onRemove }: {
   }
   return (
     <>
-      <input ref={inputRef} type="file" accept=".jpg,.jpeg,.png,.pdf" className="hidden"
+      {/* <input ref={inputRef} type="file" accept=".jpg,.jpeg,.png,.pdf" className="hidden"
         onChange={(e) => { const file = e.target.files?.[0]; if (file) onUpload(rowId, file) }} />
       <button onClick={() => inputRef.current?.click()} className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-600 border border-dashed border-slate-200 hover:border-slate-400 rounded-md px-2 py-1 transition-colors">
         <Upload className="w-3 h-3" /><span>Upload</span>
-      </button>
+      </button> */}
     </>
   )
 }
@@ -196,11 +197,11 @@ export function CSRTable({ data, activeFilters, sortKey, sortDirection, onSort }
 
   // ── Document handlers ──────────────────────────────────────────────────────
 
-  const handleUpload = (id: string, file: File) =>
-    setTableData((prev) => prev.map((row) => row.id === id ? { ...row, documentName: file.name, document: file } : row))
+  // const handleUpload = (id: string, file: File) =>
+  //   setTableData((prev) => prev.map((row) => row.id === id ? { ...row, documentName: file.name, document: file } : row))
 
   const handleRemove = (id: string) =>
-    setTableData((prev) => prev.map((row) => row.id === id ? { ...row, documentName: undefined, document: null } : row))
+  setTableData((prev) => prev.map((row) => row.id === id ? { ...row, documentName: undefined } : row))
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -259,7 +260,8 @@ export function CSRTable({ data, activeFilters, sortKey, sortDirection, onSort }
                     <TableCell className="text-[13px] text-slate-700 font-medium tabular-nums">{item.count}</TableCell>
                     <TableCell className="max-w-[260px] truncate text-[12px] text-slate-500">{item.feedback}</TableCell>
                     <TableCell>
-                      <DocumentCell documentName={item.documentName} rowId={item.id} onUpload={handleUpload} onRemove={handleRemove} />
+                      {/* onUpload={handleUpload} */}
+                      <DocumentCell documentName={item.documentName} rowId={item.id} onRemove={handleRemove} />
                     </TableCell>
                     <TableCell className="text-[11px] text-slate-400 whitespace-nowrap">
                       {new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
