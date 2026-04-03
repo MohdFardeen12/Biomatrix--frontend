@@ -179,7 +179,7 @@ export function ChartRadialStacked() {
     </ChartContainer>
   </CardContent>
 
-  <CardFooter className="flex flex-col items-center text-xs pt-2">
+  <CardFooter className="flex flex-col items-center text-sm pt-2">
     <div className="font-medium">
       6,05,643 / 8,99,823 Candidates
     </div>
@@ -251,7 +251,7 @@ export function ChartRadialStacked() {
     </ChartContainer>
   </CardContent>
 
-  <CardFooter className="flex flex-col items-center text-xs pt-2">
+  <CardFooter className="flex flex-col items-center text-sm pt-2">
     <div className="font-medium">
       13,451 / 16,583 Synced
     </div>

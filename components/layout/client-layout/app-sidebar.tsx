@@ -37,14 +37,19 @@ import {
 const data = {
   navMain: [
     {
+      title: "Dashboard",
+      url: "/",
+      icon: IconDashboard,
+    },
+    {
       title: "Exam",
       url: "/exam",
       icon: IconFolder,
     },
     {
-      title: "Dashboard",
-      url: "/",
-      icon: IconDashboard,
+      title: "Enrollment",
+      url: "/enrollment",
+      icon: IconSearch,
     },
     {
       title: "Deleted",
