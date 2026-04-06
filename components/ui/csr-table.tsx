@@ -45,14 +45,14 @@ export function csrCountActiveFilters(f: CSRActiveFilters) {
 // ─── Default data ─────────────────────────────────────────────────────────────
 
 const defaultFeedbackData: CSRRow[] = [
-  { id: "A1B2C", customer: "John Smith",     email: "john.smith@example.com", authenticated: 38,  count: 42, feedback: "Excellent product! Exam preparation tools are very comprehensive.",      documentName: "exam_report_march.pdf",     date: "2024-03-15",   status: "Resolved",     rating: 5 },
-  { id: "D3E4F", customer: "Sarah Johnson",  email: "sarah.j@example.com",    authenticated: 28,  count: 28, feedback: "Good analytics features, but could use more customization options.",     documentName: "analytics_feedback.png",    date: "2024-03-14",   status: "Resolved",     rating: 4 },
-  { id: "G5H6I", customer: "Michael Chen",   email: "m.chen@example.com",     authenticated: 10,  count: 15, feedback: "Perfect for creating assessments. Very intuitive interface.",            documentName: "satisfaction_report.pdf",   date: "2024-03-13",   status: "Resolved",     rating: 5 },
-  { id: "J7K8L", customer: "Emily Davis",    email: "emily.d@example.com",    authenticated: 7,   count: 7,  feedback: "Had some issues with the reporting feature. Support is helping.",        documentName: "issue_screenshot.jpg",      date: "2024-03-12",   status: "In Progress",  rating: 3 },
-  { id: "M9N0P", customer: "Robert Wilson",  email: "r.wilson@example.com",   authenticated: 53,  count: 63, feedback: "The insights provided have significantly improved our pass rates.",      documentName: "pass_rate_report.pdf",      date: "2024-03-11",   status: "Resolved",     rating: 5 },
-  { id: "Q1R2S", customer: "Lisa Anderson",  email: "l.anderson@example.com", authenticated: 10,  count: 11, feedback: "Great tool for creating varied question types across exams.",            documentName: "put_report.jpg",            date: "2024-03-10",   status: "Resolved",     rating: 4 },
-  { id: "T3U4V", customer: "David Martinez", email: "d.martinez@example.com", authenticated: 3,   count: 3,  feedback: "Experiencing technical difficulties with batch processing module.",      documentName: "error_log.pdf",             date: "2024-03-09",   status: "Pending",      rating: 2 },
-  { id: "W5X6Y", customer: "Demo Center",    email: "demoemail@example.com",  authenticated: 79,  count: 89, feedback: "Outstanding support team and excellent overall product quality.",        documentName: "support_ticket.jpeg",       date: "2024-03-08",   status: "Resolved",     rating: 5 },
+  { id: "A1B2C", customer: "DAV School",   email: "dav@example.com",     authenticated: 38, count: 42, feedback: "Excellent prep tools.", documentName: "exam_report_march.pdf",   date: "2024-03-15", status: "Resolved",    rating: 5 },
+  { id: "D3E4F", customer: "ABC Acad",     email: "abc@example.com",     authenticated: 28, count: 28, feedback: "Good analytics, needs customization.", documentName: "analytics_feedback.png", date: "2024-03-14", status: "Resolved",    rating: 4 },
+  { id: "G5H6I", customer: "Prime Inst",   email: "prime@example.com",   authenticated: 10, count: 15, feedback: "Easy and intuitive assessments.", documentName: "satisfaction_report.pdf", date: "2024-03-13", status: "Resolved",    rating: 5 },
+  { id: "J7K8L", customer: "Edu Hub",      email: "eduhub@example.com",  authenticated: 7,  count: 7,  feedback: "Reporting issues, support helping.", documentName: "issue_screenshot.jpg",    date: "2024-03-12", status: "In Progress", rating: 3 },
+  { id: "M9N0P", customer: "Bright Acad",  email: "bright@example.com",  authenticated: 53, count: 63, feedback: "Improved pass rates significantly.", documentName: "pass_rate_report.pdf",    date: "2024-03-11", status: "Resolved",    rating: 5 },
+  { id: "Q1R2S", customer: "NextGen Edu",  email: "nextgen@example.com", authenticated: 10, count: 11, feedback: "Great question variety.", documentName: "put_report.jpg",          date: "2024-03-10", status: "Resolved",    rating: 4 },
+  { id: "T3U4V", customer: "Skill Ctr",    email: "skill@example.com",   authenticated: 3,  count: 3,  feedback: "Batch processing issues.", documentName: "error_log.pdf",           date: "2024-03-09", status: "Pending",     rating: 2 },
+  { id: "W5X6Y", customer: "Demo Ctr",     email: "demo@example.com",    authenticated: 79, count: 89, feedback: "Great support and quality.", documentName: "support_ticket.jpeg",     date: "2024-03-08", status: "Resolved",    rating: 5 },
 ]
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -210,32 +210,32 @@ export function CSRTable({ data, activeFilters, sortKey, sortDirection, onSort }
       <Card className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <CardHeader className="pb-4">
           <CardTitle className="text-[20px] font-semibold text-slate-800">Recent Customer Feedback</CardTitle>
-          <CardDescription className="text-[13px] text-slate-400">Latest feedback and ratings from customers on exam products</CardDescription>
+          <CardDescription className="text-[13px] text-slate-500">Latest feedback and ratings from customers on exam products</CardDescription>
         </CardHeader>
 
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-50 hover:bg-slate-50 border-b border-slate-200">
-                <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider pl-6">
-                  <div className="inline-flex items-center gap-1">ID <SortIconButton columnKey="id" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} isText /></div>
+                <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider pl-6">
+                  <div className="inline-flex items-center gap-1">CenterID <SortIconButton columnKey="id" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} isText /></div>
                 </TableHead>
-                <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                   <div className="inline-flex items-center gap-1">Center Name <SortIconButton columnKey="customer" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} isText /></div>
                 </TableHead>
-                <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Authenticated</TableHead>
-                <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Authenticated</TableHead>
+                <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                   <div className="inline-flex items-center gap-1">Count <SortIconButton columnKey="count" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} /></div>
                 </TableHead>
-                <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider max-w-[260px]">Feedback</TableHead>
-                <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Document</TableHead>
-                <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider max-w-[260px]">Feedback</TableHead>
+                <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Document</TableHead>
+                <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                   <div className="inline-flex items-center gap-1">Date <SortIconButton columnKey="date" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} /></div>
                 </TableHead>
-                <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                   <div className="inline-flex items-center gap-1">Status <SortIconButton columnKey="status" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} isText /></div>
                 </TableHead>
-                <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider pr-6">
+                <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider pr-6">
                   <div className="inline-flex items-center gap-1">Rating <SortIconButton columnKey="rating" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} /></div>
                 </TableHead>
               </TableRow>
@@ -244,27 +244,27 @@ export function CSRTable({ data, activeFilters, sortKey, sortDirection, onSort }
             <TableBody>
               {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-16 text-slate-400 text-sm">No records found.</TableCell>
+                  <TableCell colSpan={9} className="text-center py-16 text-slate-500 text-sm">No records found.</TableCell>
                 </TableRow>
               ) : (
                 paginatedData.map((item, idx) => (
                   <TableRow key={item.id ?? idx} className="border-b border-slate-100 transition-colors hover:bg-slate-50/70">
-                    <TableCell className="pl-6 text-[12px] text-blue-500 font-mono">{item.id}</TableCell>
+                    <TableCell className="pl-6 text-[12px] text-slate-700 font-mono">{item.id}</TableCell>
                     <TableCell>
                       <div>
                         <div className="text-[13px] text-slate-700 font-medium">{item.customer}</div>
-                        <div className="text-[12px] text-slate-400">{item.email}</div>
+                        <div className="text-[12px] text-slate-500">{item.email}</div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-[13px] text-slate-700 font-medium tabular-nums">{item.authenticated}</TableCell>
-                    <TableCell className="text-[13px] text-slate-700 font-medium tabular-nums">{item.count}</TableCell>
-                    <TableCell className="max-w-[260px] truncate text-[12px] text-slate-500">{item.feedback}</TableCell>
+                    <TableCell className="text-[13px] text-slate-700 tabular-nums">{item.authenticated}</TableCell>
+                    <TableCell className="text-[13px] text-slate-700 tabular-nums">{item.count}</TableCell>
+                    <TableCell className="max-w-[260px] truncate text-[12px] text-slate-600">{item.feedback}</TableCell>
                     <TableCell>
                       {/* onUpload={handleUpload} */}
                       <DocumentCell documentName={item.documentName} rowId={item.id} onRemove={handleRemove} />
                     </TableCell>
-                    <TableCell className="text-[11px] text-slate-400 whitespace-nowrap">
-                      {new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    <TableCell className="text-[11px] text-slate-600 whitespace-nowrap">
+                      {new Date(item.date).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
                     </TableCell>
                     <TableCell><StatusBadge status={item.status} /></TableCell>
                     <TableCell className="pr-6"><StarRating rating={item.rating} /></TableCell>
@@ -276,7 +276,7 @@ export function CSRTable({ data, activeFilters, sortKey, sortDirection, onSort }
 
           {totalPages > 1 && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
-              <span className="text-[11px] text-slate-400">
+              <span className="text-[11px] text-slate-500">
                 Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, sorted.length)} of {sorted.length} records
               </span>
               <div className="flex items-center gap-1">
