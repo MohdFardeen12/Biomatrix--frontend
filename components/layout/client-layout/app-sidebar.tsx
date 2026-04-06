@@ -17,6 +17,7 @@ import {
   IconSearch,
   IconSettings,
   IconUsers,
+  IconUserCheck
 } from "@tabler/icons-react"
 
 import { NavDocuments } from '@/components/layout/client-layout/nav-documents'
@@ -49,7 +50,7 @@ const data = {
     {
       title: "Enrollment",
       url: "/enrollment",
-      icon: IconSearch,
+      icon: IconUserCheck,
     },
     {
       title: "Deleted",

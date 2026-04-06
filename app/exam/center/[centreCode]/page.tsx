@@ -535,31 +535,31 @@ function SidebarFilter({
             </div>
     
             <div className="p-4 md:p-6 overflow-x-auto">
-              <table className="min-w-full border-collapse text-[13px]">
+              <table className="min-w-full rounded-xl border-collapse">
                 <thead>
                   <tr className="bg-slate-50">
-                    <th className="border border-slate-300 px-4 py-3 text-center font-semibold text-slate-700">
+                    <th className="border border-slate-300 px-4 py-3 text-[13px] text-center font-semibold text-slate-700">
                       Roll No.
                     </th>
-                    <th className="border border-slate-300 px-4 py-3 text-center font-semibold text-slate-700">
+                    <th className="border border-slate-300 px-4 py-3 text-[13px] text-center font-semibold text-slate-700">
                       Name
                     </th>
-                    <th className="border border-slate-300 px-4 py-3 text-center font-semibold text-slate-700">
+                    <th className="border border-slate-300 px-4 py-3 text-[13px] text-center font-semibold text-slate-700">
                       Original Photo
                     </th>
-                    <th className="border border-slate-300 px-4 py-3 text-center font-semibold text-slate-700">
+                    <th className="border border-slate-300 px-4 py-3 text-[13px] text-center font-semibold text-slate-700">
                       Photo
                     </th>
-                    <th className="border border-slate-300 px-4 py-3 text-center font-semibold text-slate-700">
+                    <th className="border border-slate-300 px-4 py-3 text-[13px ] text-center font-semibold text-slate-700">
                       Finger
                     </th>
-                    <th className="border border-slate-300 px-4 py-3 text-center font-semibold text-slate-700">
+                    <th className="border border-slate-300 px-4 py-3 text-[13px] text-center font-semibold text-slate-700">
                       Iris
                     </th>
-                    <th className="border border-slate-300 px-4 py-3 text-center font-semibold text-slate-700">
+                    <th className="border border-slate-300 px-4 py-3 text-[13px] text-center font-semibold text-slate-700">
                       Device
                     </th>
-                    <th className="border border-slate-300 px-4 py-3 text-center font-semibold text-slate-700">
+                    <th className="border border-slate-300 px-4 py-3 text-[13px] text-center font-semibold text-slate-700">
                       Scanned
                     </th>
                   </tr>
@@ -567,7 +567,7 @@ function SidebarFilter({
     
                 <tbody>
                   <tr>
-                    <td className="border border-slate-300 px-4 py-8 text-center text-slate-700">
+                    <td className="border border-slate-300 px-4 py-8  text-center text-slate-700">
                       {student.rollNo}
                     </td>
                     <td className="border border-slate-300 px-4 py-8 text-center text-slate-700">
@@ -947,17 +947,17 @@ export default function CentreDetailsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
-            <p className="text-slate-500 text-xs uppercase tracking-wide">Centre Name</p>
+            <p className="text-slate-600 text-xs uppercase tracking-wide">Centre Name</p>
             <p className="font-medium text-slate-800 mt-1">{center.centreName}</p>
           </div>
 
           <div>
-            <p className="text-slate-500 text-xs uppercase tracking-wide">Centre Code</p>
+            <p className="text-slate-600 text-xs uppercase tracking-wide">Centre Code</p>
             <p className="font-medium text-slate-800 mt-1">{center.centreCode}</p>
           </div>
 
           <div>
-            <p className="text-slate-500 text-xs uppercase tracking-wide">City</p>
+            <p className="text-slate-600 text-xs uppercase tracking-wide">City</p>
             <p className="font-medium text-slate-800 mt-1">{center.city}</p>
           </div>
         </div>
@@ -965,12 +965,12 @@ export default function CentreDetailsPage() {
 
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse text-[12px]">
+          <table className="min-w-full border-collapse">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="px-3 py-3 text-center font-semibold text-slate-500 uppercase">S No.</th>
+                <th className="px-3 py-3 text-center font-semibold text-[11px] text-slate-600 uppercase">S No.</th>
 
-                <th className="px-3 py-3 text-center font-semibold text-slate-500 uppercase">
+                <th className="px-3 py-3 text-center font-semibold text-[11px] text-slate-600 uppercase">
                   <div className="inline-flex items-center gap-1">
                     Roll No
                     <SortIconButton
@@ -982,7 +982,7 @@ export default function CentreDetailsPage() {
                   </div>
                 </th>
 
-                <th className="px-3 py-3 text-left font-semibold text-slate-500 uppercase">
+                <th className="px-3 py-3 text-left font-semibold text-[11px] text-slate-600 uppercase">
                   <div className="inline-flex items-center gap-1">
                     Name
                     <SortIconButton
@@ -995,7 +995,7 @@ export default function CentreDetailsPage() {
                   </div>
                 </th>
 
-                <th className="px-3 py-3 text-center font-semibold text-slate-500 uppercase">
+                <th className="px-3 py-3 text-center font-semibold text-[11px] text-slate-600 uppercase">
                   <div className="inline-flex items-center gap-1">
                     Walkin
                     <SortIconButton
@@ -1008,7 +1008,7 @@ export default function CentreDetailsPage() {
                   </div>
                 </th>
 
-                <th className="px-3 py-3 text-center font-semibold text-slate-500 uppercase">
+                <th className="px-3 py-3 text-center font-semibold text-[11px] text-slate-600 uppercase">
                   <div className="inline-flex items-center gap-1">
                     Time
                     <SortIconButton
@@ -1020,7 +1020,7 @@ export default function CentreDetailsPage() {
                   </div>
                 </th>
 
-                <th className="px-3 py-3 text-center font-semibold text-slate-500 uppercase">
+                <th className="px-3 py-3 text-center font-semibold text-[11px] text-slate-600 uppercase">
                   <div className="inline-flex items-center gap-1">
                     Present / Absent
                     <SortIconButton
@@ -1041,7 +1041,7 @@ export default function CentreDetailsPage() {
                   key={student.rollNo}
                   className="border-b border-slate-100 hover:bg-slate-50/70"
                 >
-                  <td className="px-3 py-3 text-center text-slate-700">
+                  <td className="px-3 py-3 text-center text-[13px] text-slate-700">
                     {(page - 1) * PAGE_SIZE + index + 1}
                   </td>
 
@@ -1052,14 +1052,14 @@ export default function CentreDetailsPage() {
                         setSelectedStudent(student);
                         setDetailsModalOpen(true);
                       }}
-                      className="text-blue-600 hover:underline font-medium"
+                      className="text-blue-600 text-[13px] hover:underline font-semibold"
                     >
                       {student.rollNo}
                     </button>
                   </td>
-                  <td className="px-3 py-3 text-slate-700">{student.name}</td>
-                  <td className="px-3 py-3 text-center text-slate-700">{student.walkin}</td>
-                  <td className="px-3 py-3 text-center text-slate-700">{student.time}</td>
+                  <td className="px-3 py-3 text-[13px] text-slate-700">{student.name}</td>
+                  <td className="px-3 py-3 text-[13px] text-center text-slate-700">{student.walkin}</td>
+                  <td className="px-3 py-3 text-[13px] text-center text-slate-700">{student.time}</td>
 
                   <td className="px-3 py-3 text-center">
                     <span

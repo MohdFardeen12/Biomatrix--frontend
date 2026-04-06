@@ -1,661 +1,3 @@
-// "use client";
-
-// import { useState } from "react";
-
-// import {
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableHead,
-//   TableHeader,
-//   TableRow,
-// } from "@/components/ui/table";
-// import { Badge } from "@/components/ui/badge";
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
-// import {
-//   Tooltip,
-//   TooltipContent,
-//   TooltipProvider,
-//   TooltipTrigger,
-// } from "@/components/ui/tooltip";
-// import {
-//   AlertDialog,
-//   AlertDialogAction,
-//   AlertDialogCancel,
-//   AlertDialogContent,
-//   AlertDialogDescription,
-//   AlertDialogFooter,
-//   AlertDialogHeader,
-//   AlertDialogTitle,
-// } from "@/components/ui/alert-dialog";
-
-// import {
-//   Trash2,
-//   RotateCcw,
-//   Search,
-//   MoreVertical,
-//   CheckCircle2,
-//   XCircle,
-//   ShieldAlert,
-//   Filter,
-//   ChevronLeft,
-//   ChevronRight,
-//   Download,
-// } from "lucide-react";
-
-// import { cn } from "@/lib/utils";
-
-// // ─── Types ────────────────────────────────────────────────────────────────────
-
-// type ExamRecord = {
-//   id: number;
-//   rollNo: string;
-//   name: string;
-//   device: string;
-//   comments: string;
-//   photoMatched: boolean | null;
-//   centreOperator: boolean | null;
-//   deletedAt: string;
-// };
-
-// // ─── Mock Data ────────────────────────────────────────────────────────────────
-
-// const INITIAL_DATA: ExamRecord[] = [
-//   {
-//     id: 1,
-//     rollNo: "156056706",
-//     name: "KRITI KIRAN",
-//     device: "HA0RCBED",
-//     comments: "",
-//     photoMatched: true,
-//     centreOperator: true,
-//      deletedAt: "12 March 2026 10:22 AM",
-//   },
-//   {
-//     id: 2,
-//     rollNo: "156038138",
-//     name: "ANUGRAH HERO",
-//     device: "HA2CMSIG",
-//     comments: "Auto moved from 156056707",
-//     photoMatched: true,
-//     centreOperator: true,
-//     deletedAt: "12 April 2026 12:22 PM",
-//   },
-//   {
-//     id: 3,
-//     rollNo: "156066199",
-//     name: "RAMESH NARDI",
-//     device: "UNRP54TVZ",
-//     comments: "",
-//     photoMatched: true,
-//     centreOperator: false,
-//     deletedAt: "12 May 2026 01:35 PM",
-//   },
-//   {
-//     id: 4,
-//     rollNo: "156056400",
-//     name: "GANGADHAR HEMBRAM",
-//     device: "HA0RUDGE",
-//     comments: "",
-//     photoMatched: false,
-//     centreOperator: null,
-//     deletedAt: "12 June 2026 09:10 AM",
-//   },
-//   {
-//     id: 5,
-//     rollNo: "156078342",
-//     name: "PRIYA SHARMA",
-//     device: "XB1TQAZW",
-//     comments: "Device mismatch reported",
-//     photoMatched: null,
-//     centreOperator: true,
-//     deletedAt: "12 August 2026 07:25 AM",
-//   },
-//   {
-//     id: 6,
-//     rollNo: "156099001",
-//     name: "RAJIV MEHTA",
-//     device: "ZC3PLNMQ",
-//     comments: "",
-//     photoMatched: true,
-//     centreOperator: true,
-//     deletedAt: "12 July 2026 03:50 PM",
-//   },
-// ];
-
-// // ─── StatusIcon ───────────────────────────────────────────────────────────────
-
-// const StatusIcon = ({ value }: { value: boolean | null }) => {
-//   if (value === true)
-//     return <CheckCircle2 className="w-4 h-4 text-emerald-500 mx-auto" />;
-//   if (value === false)
-//     return <XCircle className="w-4 h-4 text-rose-500 mx-auto" />;
-//   return <span className="text-slate-300 text-xs mx-auto block text-center">—</span>;
-// };
-
-// // ─── Page ─────────────────────────────────────────────────────────────────────
-
-// export default function DeletedPage() {
-//   const [records, setRecords] = useState<ExamRecord[]>(INITIAL_DATA);
-//   const [search, setSearch] = useState("");
-//   const [selected, setSelected] = useState<Set<number>>(new Set());
-//   const [restoreTarget, setRestoreTarget] = useState<ExamRecord | null>(null);
-//   const [permanentTarget, setPermanentTarget] = useState<ExamRecord | null>(null);
-//   const [page, setPage] = useState(1);
-//   const PAGE_SIZE = 4;
-
-//   // ── Filtering ──────────────────────────────────────────────────────────────
-//   const filtered = records.filter(
-//     (r) =>
-//       r.rollNo.includes(search) ||
-//       r.name.toLowerCase().includes(search.toLowerCase()) ||
-//       r.device.toLowerCase().includes(search.toLowerCase())
-//   );
-//   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-//   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
-//   // ── Selection ──────────────────────────────────────────────────────────────
-//   const toggleSelect = (id: number) => {
-//     setSelected((prev) => {
-//       const next = new Set(prev);
-//       next.has(id) ? next.delete(id) : next.add(id);
-//       return next;
-//     });
-//   };
-//   const allSelected =
-//     paginated.length > 0 && paginated.every((r) => selected.has(r.id));
-//   const toggleAll = () => {
-//     if (allSelected) {
-//       setSelected((prev) => {
-//         const next = new Set(prev);
-//         paginated.forEach((r) => next.delete(r.id));
-//         return next;
-//       });
-//     } else {
-//       setSelected((prev) => {
-//         const next = new Set(prev);
-//         paginated.forEach((r) => next.add(r.id));
-//         return next;
-//       });
-//     }
-//   };
-
-//   // ── Actions ────────────────────────────────────────────────────────────────
-//   const handleRestore = (record: ExamRecord) => {
-//     setRecords((prev) => prev.filter((r) => r.id !== record.id));
-//     setRestoreTarget(null);
-//   };
-
-//   const handlePermanentDelete = (record: ExamRecord) => {
-//     setRecords((prev) => prev.filter((r) => r.id !== record.id));
-//     setPermanentTarget(null);
-//   };
-
-//   const handleBulkRestore = () => {
-//     setRecords((prev) => prev.filter((r) => !selected.has(r.id)));
-//     setSelected(new Set());
-//   };
-
-//   //Export functionality for button________________________________________________
-//     const handleExportCSV = () => {
-//     const headers = [
-//       "S.N.",
-//       "Roll No",
-//       "Name",
-//       "Device",
-//       "Comments",
-//       "Photo Matched",
-//       "Centre Operator",
-//       "Deleted At",
-//     ];
-
-//     const rows = filtered.map((record, index) => [
-//       index + 1,
-//       record.rollNo,
-//       record.name,
-//       record.device,
-//       record.comments || "",
-//       record.photoMatched === true ? "Yes" : record.photoMatched === false ? "No" : "-",
-//       record.centreOperator === true ? "Yes" : record.centreOperator === false ? "No" : "-",
-//       record.deletedAt,
-//     ]);
-
-//     const csvContent = [headers, ...rows]
-//       .map((row) =>
-//         row
-//           .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
-//           .join(",")
-//       )
-//       .join("\n");
-
-//     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-//     const url = URL.createObjectURL(blob);
-
-//     const link = document.createElement("a");
-//     link.href = url;
-//     link.setAttribute("download", "deleted-records.csv");
-//     document.body.appendChild(link);
-//     link.click();
-//     document.body.removeChild(link);
-
-//     URL.revokeObjectURL(url);
-//   };
-
-//   //Export functionality for pdf button________________________________________________
-//     const handleExportPDF = () => {
-//       window.print();
-//     };
-
-
-//   return (
-//     <TooltipProvider>
-//       <div className="min-h-screen bg-white font-[Geist,system-ui,sans-serif]">
-//         {/* ── Top Bar ── */}
-//         <header className="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shadow-sm">
-//           <div className="flex items-center gap-3">
-//             <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center shadow">
-//               <Trash2 className="w-4 h-4 text-white" />
-//             </div>
-//             <div>
-//               <h1 className="text-[15px] font-semibold text-slate-800 leading-tight">
-//                 Deleted Records
-//               </h1>
-//               <p className="text-[11px] text-slate-400">Exam Centre — Candidate Table</p>
-//             </div>
-//           </div>
-
-//           <div className="flex items-center gap-2">
-//             <Badge
-//               variant="secondary"
-//               className="bg-rose-50 text-rose-600 border border-rose-200 text-[11px] font-medium px-2 py-0.5"
-//             >
-//               <ShieldAlert className="w-3 h-3 mr-1" />
-//               {records.length} deleted
-//             </Badge>
-//           </div>
-//         </header>
-
-//         {/* ── Main Content ── */}
-//         <main className="px-8 py-6 max-w-8xl mx-auto">
-//           {/* ── Toolbar ── */}
-//           <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-//             <div className="relative flex-1 max-w-sm">
-//               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-//               <Input
-//                 placeholder="Search by roll no, name or device…"
-//                 value={search}
-//                 onChange={(e) => {
-//                   setSearch(e.target.value);
-//                   setPage(1);
-//                 }}
-//                 className="pl-9 h-9 text-sm bg-white border-slate-200 focus-visible:ring-1 focus-visible:ring-rose-400"
-//               />
-//             </div>
-
-//             {/* filter and export buttons */}
-//             <div className="flex items-center gap-3">
-//               {selected.size > 0 && (
-//                 <Button
-//                   size="sm"
-//                   variant="outline"
-//                   className="h-8 text-xs border-emerald-300 text-emerald-700 hover:bg-emerald-50 gap-1"
-//                   onClick={handleBulkRestore}
-//                 >
-//                   <RotateCcw className="w-3.5 h-3.5" />
-//                   Restore {selected.size} selected
-//                 </Button>
-//               )}
-
-//               <Button
-//                 size="sm"
-//                 variant="outline"
-//                 className="h-8 text-xs text-slate-600 gap-1"
-//               >
-//                 <Filter className="w-3.5 h-3.5" />
-//                 Filter
-//               </Button>
-
-//               <DropdownMenu>
-//                 <DropdownMenuTrigger asChild>
-//                   <Button
-//                     size="sm"
-//                     variant="outline"
-//                     className="h-8 text-xs text-slate-600 gap-1"
-//                   >
-//                     <Download className="w-3.5 h-3.5" />
-//                     Export
-//                   </Button>
-//                 </DropdownMenuTrigger>
-//                 <DropdownMenuContent align="end" className="text-sm">
-//                   <DropdownMenuItem onClick={handleExportCSV}>
-//                     Export CSV
-//                   </DropdownMenuItem>
-//                    <DropdownMenuItem onClick={handleExportPDF}>
-//                     Export PDF
-//                   </DropdownMenuItem>
-//                 </DropdownMenuContent>
-//               </DropdownMenu>
-//             </div>
-
-//           </div>
-
-//           {/* ── Table Card ── */}
-//           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-//             <Table>
-//               <TableHeader>
-//                 <TableRow className="bg-slate-50 hover:bg-slate-50 border-b border-slate-200">
-//                   <TableHead className="w-10 pl-4">
-//                     <input
-//                       type="checkbox"
-//                       checked={allSelected}
-//                       onChange={toggleAll}
-//                       className="rounded border-slate-300 accent-blue-500 cursor-pointer"
-//                     />
-//                   </TableHead>
-//                   <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider w-10">
-//                     S.N.
-//                   </TableHead>
-//                   <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-//                     Roll No
-//                   </TableHead>
-//                   <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-//                     Name
-//                   </TableHead>
-//                   <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-//                     Device
-//                   </TableHead>
-//                   <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-//                     Comments
-//                   </TableHead>
-//                   <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-center">
-//                     Photo Matched
-//                   </TableHead>
-//                   <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-center">
-//                     Centre Operator
-//                   </TableHead>
-//                   <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-//                     Deleted At
-//                   </TableHead>
-//                   <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-right pr-4">
-//                     Actions
-//                   </TableHead>
-//                 </TableRow>
-//               </TableHeader>
-
-//               <TableBody>
-//                 {paginated.length === 0 ? (
-//                   <TableRow>
-//                     <TableCell
-//                       colSpan={10}
-//                       className="text-center py-16 text-slate-400 text-sm"
-//                     >
-//                       No deleted records found.
-//                     </TableCell>
-//                   </TableRow>
-//                 ) : (
-//                   paginated.map((record, idx) => (
-//                     <TableRow
-//                       key={record.id}
-//                       className={cn(
-//                         "border-b border-slate-100 transition-colors",
-//                         selected.has(record.id)
-//                           ? "bg-rose-50/60"
-//                           : "hover:bg-slate-50/70"
-//                       )}
-//                     >
-//                       {/* Checkbox */}
-//                       <TableCell className="pl-4">
-//                         <input
-//                           type="checkbox"
-//                           checked={selected.has(record.id)}
-//                           onChange={() => toggleSelect(record.id)}
-//                           className="rounded border-slate-300 accent-blue-500 cursor-pointer"
-//                         />
-//                       </TableCell>
-
-//                       {/* S.N. */}
-//                       <TableCell className="text-xs text-slate-500 font-medium">
-//                         {(page - 1) * PAGE_SIZE + idx + 1}
-//                       </TableCell>
-
-//                       {/* Roll No */}
-//                       <TableCell>
-//                         <span className="text-[13px] font-semibold text-blue-600 font-mono">
-//                           {record.rollNo}
-//                         </span>
-//                       </TableCell>
-
-//                       {/* Name */}
-//                       <TableCell className="text-[13px] text-slate-700 font-medium">
-//                         {record.name}
-//                       </TableCell>
-
-//                       {/* Device */}
-//                       <TableCell>
-//                         <Badge
-//                           variant="outline"
-//                           className="font-mono text-[11px] bg-slate-50 text-slate-600 border-slate-200"
-//                         >
-//                           {record.device}
-//                         </Badge>
-//                       </TableCell>
-
-//                       {/* Comments */}
-//                       <TableCell className="text-[12px] text-slate-500 max-w-[180px] truncate">
-//                         {record.comments || (
-//                           <span className="text-slate-300">—</span>
-//                         )}
-//                       </TableCell>
-
-//                       {/* Photo Matched */}
-//                       <TableCell className="text-center">
-//                         <StatusIcon value={record.photoMatched} />
-//                       </TableCell>
-
-//                       {/* Centre Operator */}
-//                       <TableCell className="text-center">
-//                         <StatusIcon value={record.centreOperator} />
-//                       </TableCell>
-
-//                       {/* Deleted At */}
-//                       <TableCell className="text-[11px] text-slate-400 whitespace-nowrap">
-//                         {record.deletedAt}
-//                       </TableCell>
-
-//                       {/* Actions */}
-//                       <TableCell className="text-right pr-4">
-//                         <div className="flex items-center justify-end gap-1">
-//                           <Tooltip>
-//                             <TooltipTrigger asChild>
-//                               <Button
-//                                 size="icon"
-//                                 variant="ghost"
-//                                 className="h-7 w-7 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
-//                                 onClick={() => setRestoreTarget(record)}
-//                               >
-//                                 <RotateCcw className="w-3.5 h-3.5" />
-//                               </Button>
-//                             </TooltipTrigger>
-//                             <TooltipContent side="left" className="text-xs">
-//                               Restore record
-//                             </TooltipContent>
-//                           </Tooltip>
-
-//                           <DropdownMenu>
-//                             <DropdownMenuTrigger asChild>
-//                               <Button
-//                                 size="icon"
-//                                 variant="ghost"
-//                                 className="h-7 w-7 text-slate-400 hover:bg-slate-100"
-//                               >
-//                                 <MoreVertical className="w-3.5 h-3.5" />
-//                               </Button>
-//                             </DropdownMenuTrigger>
-//                             <DropdownMenuContent align="end" className="text-sm">
-//                               <DropdownMenuItem
-//                                 className="text-rose-600 focus:text-rose-700 focus:bg-rose-50"
-//                                 onClick={() => setPermanentTarget(record)}
-//                               >
-//                                 <Trash2 className="w-3.5 h-3.5 mr-2" />
-//                                 Delete permanently
-//                               </DropdownMenuItem>
-//                             </DropdownMenuContent>
-//                           </DropdownMenu>
-//                         </div>
-//                       </TableCell>
-//                     </TableRow>
-//                   ))
-//                 )}
-//               </TableBody>
-//             </Table>
-
-//             {/* ── Pagination ── */}
-//             {totalPages > 1 && (
-//               <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
-//                 <span className="text-[11px] text-slate-400">
-//                   Showing {(page - 1) * PAGE_SIZE + 1}–
-//                   {Math.min(page * PAGE_SIZE, filtered.length)} of{" "}
-//                   {filtered.length} records
-//                 </span>
-//                 <div className="flex items-center gap-1">
-//                   <Button
-//                     size="icon"
-//                     variant="ghost"
-//                     className="h-7 w-7"
-//                     disabled={page === 1}
-//                     onClick={() => setPage((p) => p - 1)}
-//                   >
-//                     <ChevronLeft className="w-4 h-4" />
-//                   </Button>
-//                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-//                     (p) => (
-//                       <Button
-//                         key={p}
-//                         size="sm"
-//                         variant={p === page ? "default" : "ghost"}
-//                         className={cn(
-//                           "h-7 w-7 text-xs",
-//                           p === page &&
-//                             "bg-rose-500 hover:bg-rose-600 text-white"
-//                         )}
-//                         onClick={() => setPage(p)}
-//                       >
-//                         {p}
-//                       </Button>
-//                     )
-//                   )}
-//                   <Button
-//                     size="icon"
-//                     variant="ghost"
-//                     className="h-7 w-7"
-//                     disabled={page === totalPages}
-//                     onClick={() => setPage((p) => p + 1)}
-//                   >
-//                     <ChevronRight className="w-4 h-4" />
-//                   </Button>
-//                 </div>
-//               </div>
-//             )}
-//           </div>
-
-//           {/* ── Footer hint ── */}
-//           <p className="text-[11px] text-slate-400 mt-3 text-center">
-//             Records in this view have been soft-deleted from the Exam Centre
-//             candidate table. Restore to re-activate or permanently delete to
-//             purge.
-//           </p>
-//         </main>
-
-//         {/* ── Restore Confirm Dialog ── */}
-//         <AlertDialog
-//           open={!!restoreTarget}
-//           onOpenChange={() => setRestoreTarget(null)}
-//         >
-//           <AlertDialogContent>
-//             <AlertDialogHeader>
-//               <AlertDialogTitle className="flex items-center gap-2">
-//                 <RotateCcw className="w-4 h-4 text-emerald-500" />
-//                 Restore Record
-//               </AlertDialogTitle>
-//               <AlertDialogDescription>
-//                 Restore{" "}
-//                 <span className="font-semibold text-slate-700">
-//                   {restoreTarget?.name}
-//                 </span>{" "}
-//                 (Roll No:{" "}
-//                 <span className="font-mono text-rose-600">
-//                   {restoreTarget?.rollNo}
-//                 </span>
-//                 ) back to the exam candidate table?
-//               </AlertDialogDescription>
-//             </AlertDialogHeader>
-//             <AlertDialogFooter>
-//               <AlertDialogCancel>Cancel</AlertDialogCancel>
-//               <AlertDialogAction
-//                 className="bg-emerald-600 hover:bg-emerald-700 text-white"
-//                 onClick={() => restoreTarget && handleRestore(restoreTarget)}
-//               >
-//                 Yes, Restore
-//               </AlertDialogAction>
-//             </AlertDialogFooter>
-//           </AlertDialogContent>
-//         </AlertDialog>
-
-//         {/* ── Permanent Delete Confirm Dialog ── */}
-//         <AlertDialog
-//           open={!!permanentTarget}
-//           onOpenChange={() => setPermanentTarget(null)}
-//         >
-//           <AlertDialogContent>
-//             <AlertDialogHeader>
-//               <AlertDialogTitle className="flex items-center gap-2 text-rose-600">
-//                 <Trash2 className="w-4 h-4" />
-//                 Permanently Delete
-//               </AlertDialogTitle>
-//               <AlertDialogDescription>
-//                 This will{" "}
-//                 <span className="font-semibold text-rose-600">
-//                   permanently delete
-//                 </span>{" "}
-//                 the record for{" "}
-//                 <span className="font-semibold text-slate-700">
-//                   {permanentTarget?.name}
-//                 </span>
-//                 . This action cannot be undone.
-//               </AlertDialogDescription>
-//             </AlertDialogHeader>
-//             <AlertDialogFooter>
-//               <AlertDialogCancel>Cancel</AlertDialogCancel>
-//               <AlertDialogAction
-//                 className="bg-rose-600 hover:bg-rose-700 text-white"
-//                 onClick={() =>
-//                   permanentTarget && handlePermanentDelete(permanentTarget)
-//                 }
-//               >
-//                 Delete Permanently
-//               </AlertDialogAction>
-//             </AlertDialogFooter>
-//           </AlertDialogContent>
-//         </AlertDialog>
-//       </div>
-//     </TooltipProvider>
-//   );
-// }
-
-
-
-
-
-
-
-
 
 "use client";
 
@@ -765,12 +107,12 @@ function countActiveFilters(f: ActiveFilters) {
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
 const INITIAL_DATA: ExamRecord[] = [
-  { id: 1, rollNo: "156056706", name: "KRITI KIRAN",        device: "HA0RCBED",  comments: "",                           photoMatched: true,  centreOperator: true,  deletedAt: "12 March 2026 10:22 AM" },
-  { id: 2, rollNo: "156038138", name: "ANUGRAH HERO",       device: "HA2CMSIG",  comments: "Auto moved from 156056707",  photoMatched: true,  centreOperator: true,  deletedAt: "12 April 2026 12:22 PM" },
-  { id: 3, rollNo: "156066199", name: "RAMESH NARDI",       device: "UNRP54TVZ", comments: "",                           photoMatched: true,  centreOperator: false, deletedAt: "12 March 2026 01:35 PM"  },
-  { id: 4, rollNo: "156056400", name: "GANGADHAR HEMBRAM",  device: "HA0RUDGE",  comments: "",                           photoMatched: false, centreOperator: null,  deletedAt: "12 December 2026 09:10 AM" },
-  { id: 5, rollNo: "156078342", name: "PRIYA SHARMA",       device: "XB1TQAZW",  comments: "Device mismatch reported",   photoMatched: null,  centreOperator: true,  deletedAt: "12 August 2026 07:25 AM"},
-  { id: 6, rollNo: "156099001", name: "RAJIV MEHTA",        device: "ZC3PLNMQ",  comments: "",                           photoMatched: true,  centreOperator: true,  deletedAt: "12 April 2026 03:50 PM" },
+  { id: 1, rollNo: "156056706", name: "KRITI KIRAN",        device: "HA0RCBED",  comments: "",                           photoMatched: true,  centreOperator: true,  deletedAt: "12 March,2026 10:22 AM" },
+  { id: 2, rollNo: "156038138", name: "ANUGRAH HERO",       device: "HA2CMSIG",  comments: "Auto moved from 156056707",  photoMatched: true,  centreOperator: true,  deletedAt: "12 April,2026 12:22 PM" },
+  { id: 3, rollNo: "156066199", name: "RAMESH NARDI",       device: "UNRP54TVZ", comments: "",                           photoMatched: true,  centreOperator: false, deletedAt: "12 March,2026 01:35 PM"  },
+  { id: 4, rollNo: "156056400", name: "GANGADHAR HEMBRAM",  device: "HA0RUDGE",  comments: "",                           photoMatched: false, centreOperator: null,  deletedAt: "12 December,2026 09:10 AM" },
+  { id: 5, rollNo: "156078342", name: "PRIYA SHARMA",       device: "XB1TQAZW",  comments: "Device mismatch reported",   photoMatched: null,  centreOperator: true,  deletedAt: "12 August,2026 07:25 AM"},
+  { id: 6, rollNo: "156099001", name: "RAJIV MEHTA",        device: "ZC3PLNMQ",  comments: "",                           photoMatched: true,  centreOperator: true,  deletedAt: "12 April,2026 03:50 PM" },
 ];
 
 // ─── StatusIcon ───────────────────────────────────────────────────────────────
@@ -823,6 +165,8 @@ function SidebarFilter({ open, onClose, filters, onApply, onClearAll }: SidebarF
 
   const draftCount = countActiveFilters(draft);
 
+
+  //advance filter logic.
   return (
     <>
       <div className={`fixed inset-0 z-30 bg-black/20 backdrop-blur-[1px] transition-opacity duration-300 ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`} />
@@ -1052,12 +396,12 @@ export default function DeletedPage() {
         {/* ── Top Bar ── */}
         <header className="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center shadow">
+            {/* <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center shadow">
               <Trash2 className="w-4 h-4 text-white" />
-            </div>
-            <div>
+            </div> */}
+            <div className="ml-3">
               <h1 className="text-[15px] font-semibold text-slate-800 leading-tight">Deleted Records</h1>
-              <p className="text-[11px] text-slate-400">Exam Centre — Candidate Table</p>
+              <p className="text-[12px] text-slate-500">Exam Centre — Candidate Table</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -1157,42 +501,42 @@ export default function DeletedPage() {
                   <TableHead className="w-10 pl-4">
                     <input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded border-slate-300 accent-blue-500 cursor-pointer" />
                   </TableHead>
-                  <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider w-10">S.N.</TableHead>
+                  <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider w-10">S.N.</TableHead>
 
-                  <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                     <div className="inline-flex items-center gap-1">
                       Roll No
                       <SortIconButton columnKey="rollNo" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} />
                     </div>
                   </TableHead>
 
-                  <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                     <div className="inline-flex items-center gap-1">
                       Name
                       <SortIconButton columnKey="name" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} isText />
                     </div>
                   </TableHead>
 
-                  <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                     <div className="inline-flex items-center gap-1">
                       Device
                       <SortIconButton columnKey="device" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} isText />
                     </div>
                   </TableHead>
 
-                  <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Comments</TableHead>
+                  <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Comments</TableHead>
 
-                  <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-center">Photo Matched</TableHead>
-                  <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-center">Centre Operator</TableHead>
+                  <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider text-center">Photo Matched</TableHead>
+                  <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider text-center">Centre Operator</TableHead>
 
-                  <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                     <div className="inline-flex items-center gap-1">
                       Deleted At
                       <SortIconButton columnKey="deletedAt" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} isText />
                     </div>
                   </TableHead>
 
-                  <TableHead className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-right pr-4">Actions</TableHead>
+                  <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider text-right pr-4">Actions</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -1210,18 +554,18 @@ export default function DeletedPage() {
                       <TableCell className="pl-4">
                         <input type="checkbox" checked={selected.has(record.id)} onChange={() => toggleSelect(record.id)} className="rounded border-slate-300 accent-blue-500 cursor-pointer" />
                       </TableCell>
-                      <TableCell className="text-xs text-slate-500 font-medium">{(page - 1) * PAGE_SIZE + idx + 1}</TableCell>
-                      <TableCell><span className="text-[13px] font-semibold text-blue-600 font-mono">{record.rollNo}</span></TableCell>
-                      <TableCell className="text-[13px] text-slate-700 font-medium">{record.name}</TableCell>
+                      <TableCell className="text-[12px] text-slate-700 font-medium">{(page - 1) * PAGE_SIZE + idx + 1}</TableCell>
+                      <TableCell><span className="text-[13px] font-semibold text-slate-700 font-mono">{record.rollNo}</span></TableCell>
+                      <TableCell className="text-[12px] text-slate-700 ">{record.name}</TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="font-mono text-[11px] bg-slate-50 text-slate-600 border-slate-200">{record.device}</Badge>
+                        <Badge variant="outline" className=" text-[12px] bg-slate-50 text-slate-700 border-slate-200">{record.device}</Badge>
                       </TableCell>
-                      <TableCell className="text-[12px] text-slate-500 max-w-[180px] truncate">
+                      <TableCell className="text-[12px] text-slate-700 max-w-[180px] truncate">
                         {record.comments || <span className="text-slate-300">—</span>}
                       </TableCell>
                       <TableCell className="text-center"><StatusIcon value={record.photoMatched} /></TableCell>
                       <TableCell className="text-center"><StatusIcon value={record.centreOperator} /></TableCell>
-                      <TableCell className="text-[11px] text-slate-400 whitespace-nowrap">{record.deletedAt}</TableCell>
+                      <TableCell className="text-[12px] text-slate-600 whitespace-nowrap">{record.deletedAt}</TableCell>
                       <TableCell className="text-right pr-4">
                         <div className="flex items-center justify-end gap-1">
                           <Tooltip>
@@ -1256,7 +600,7 @@ export default function DeletedPage() {
             {/* ── Pagination ── */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-slate-500">
                   Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, sorted.length)} of {sorted.length} records
                 </span>
                 <div className="flex items-center gap-1">
@@ -1276,7 +620,7 @@ export default function DeletedPage() {
             )}
           </div>
 
-          <p className="text-[11px] text-slate-400 mt-3 text-center">
+          <p className="text-[11px] text-slate-500 mt-3 text-center">
             Records in this view have been soft-deleted from the Exam Centre candidate table. Restore to re-activate or permanently delete to purge.
           </p>
         </main>

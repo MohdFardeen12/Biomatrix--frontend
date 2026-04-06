@@ -305,8 +305,7 @@ function SidebarFilter({ open, onClose, filters, onApply, onClearAll }: SidebarF
             return (
               <div key={field.key} className="border-b border-slate-100 last:border-0">
                 {/* Field header row */}
-                <button
-                  type="button"
+                <div
                   onClick={() => toggleExpanded(field.key)}
                   className="w-full flex items-center justify-between px-5 py-3 hover:bg-slate-50 transition-colors group"
                 >
@@ -333,7 +332,7 @@ function SidebarFilter({ open, onClose, filters, onApply, onClearAll }: SidebarF
                       : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                     }
                   </div>
-                </button>
+                </div>
 
                 {/* Expanded input area */}
                 {isOpen && (
@@ -499,6 +498,12 @@ export default function DataTable() {
 
   const totalPages = Math.max(1, Math.ceil(sortedData.length / PAGE_SIZE));
 
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
   const paginated = useMemo(() => {
     const start = (page - 1) * PAGE_SIZE;
     return sortedData.slice(start, start + PAGE_SIZE);
@@ -588,7 +593,7 @@ export default function DataTable() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-white p-8 font-[Geist,system-ui,sans-serif]">
+    <div className="min-h-screen bg-white px-8 py-2 font-[Geist,system-ui,sans-serif]">
 
       {/* Sidebar */}
       <SidebarFilter
@@ -713,44 +718,44 @@ export default function DataTable() {
         <table className="min-w-full border-collapse text-[11px]">
           <thead>
             <tr className="bg-slate-50 hover:bg-slate-50 border-b border-slate-200">
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">S.N.</th>
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">S.N.</th>
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">
                 <div className="inline-flex items-center gap-1">Devices <SortIconButton columnKey="devices" /></div>
               </th>
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">
                 <div className="inline-flex flex-col items-center leading-tight">
-                  <span>Centre</span><span>Code</span>
+                  <span>Centre Code</span>
                   <span className="mt-0.5"><SortIconButton columnKey="centreCode" /></span>
                 </div>
               </th>
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">
                 <div className="inline-flex items-center gap-1">City <SortIconButton columnKey="city" /></div>
               </th>
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">
                 <div className="inline-flex items-center gap-1">RM <SortIconButton columnKey="rm" /></div>
               </th>
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">
                 <div className="inline-flex items-center gap-1">Name <SortIconButton columnKey="name" /></div>
               </th>
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">
                 <div className="inline-flex items-center gap-1">Total <SortIconButton columnKey="total" /></div>
               </th>
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">
                 <div className="inline-flex items-center gap-1">Enrollments <SortIconButton columnKey="enrollments" /></div>
               </th>
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">
                 <div className="inline-flex items-center gap-1">Walkins <SortIconButton columnKey="walkins" /></div>
               </th>
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">
                 <div className="inline-flex items-center gap-1">FR count <SortIconButton columnKey="fr" /></div>
               </th>
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">
                 <div className="inline-flex items-center gap-1">CSR <SortIconButton columnKey="csr" /></div>
               </th>
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">
                 <div className="inline-flex items-center gap-1">Duplicate <SortIconButton columnKey="duplicate" /></div>
               </th>
-              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              <th className="px-2 py-2 text-center text-[11px] font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">
                 Data<br />download
               </th>
             </tr>
@@ -772,7 +777,7 @@ export default function DataTable() {
                   <td className="px-2 py-3 text-center text-[12px] text-slate-500 font-medium">
                     {(page - 1) * PAGE_SIZE + idx + 1}
                   </td>
-                  <td className="px-2 py-3 text-center text-[13px] text-slate-700">{row.devices}</td>
+                  <td className="px-2 py-3 text-center text-[12px] text-slate-700">{row.devices}</td>
                   <td className="px-2 py-3 text-center">
                     <Link
                       href={`/exam/center/${row.centreCode}`}
@@ -805,7 +810,7 @@ export default function DataTable() {
 
         {sortedData.length > 0 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50">
-            <span className="text-[11px] text-slate-400">
+            <span className="text-[11px] text-slate-500">
               Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, sortedData.length)} of {sortedData.length} records
             </span>
             <div className="flex items-center gap-1">
