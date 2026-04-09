@@ -107,12 +107,12 @@ function countActiveFilters(f: ActiveFilters) {
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
 const INITIAL_DATA: ExamRecord[] = [
-  { id: 1, rollNo: "156056706", name: "KRITI KIRAN",        device: "HA0RCBED",  comments: "",                           photoMatched: true,  centreOperator: true,  deletedAt: "12 March,2026 10:22 AM" },
-  { id: 2, rollNo: "156038138", name: "ANUGRAH HERO",       device: "HA2CMSIG",  comments: "Auto moved from 156056707",  photoMatched: true,  centreOperator: true,  deletedAt: "12 April,2026 12:22 PM" },
-  { id: 3, rollNo: "156066199", name: "RAMESH NARDI",       device: "UNRP54TVZ", comments: "",                           photoMatched: true,  centreOperator: false, deletedAt: "12 March,2026 01:35 PM"  },
-  { id: 4, rollNo: "156056400", name: "GANGADHAR HEMBRAM",  device: "HA0RUDGE",  comments: "",                           photoMatched: false, centreOperator: null,  deletedAt: "12 December,2026 09:10 AM" },
-  { id: 5, rollNo: "156078342", name: "PRIYA SHARMA",       device: "XB1TQAZW",  comments: "Device mismatch reported",   photoMatched: null,  centreOperator: true,  deletedAt: "12 August,2026 07:25 AM"},
-  { id: 6, rollNo: "156099001", name: "RAJIV MEHTA",        device: "ZC3PLNMQ",  comments: "",                           photoMatched: true,  centreOperator: true,  deletedAt: "12 April,2026 03:50 PM" },
+  { id: 1, rollNo: "156056706", name: "KRITI KIRAN",        device: "HA0RCBED",  comments: "",                           photoMatched: true,  centreOperator: true,  deletedAt: "12 March, 2026 10:22 AM" },
+  { id: 2, rollNo: "156038138", name: "ANUGRAH HERO",       device: "HA2CMSIG",  comments: "Auto moved from 156056707",  photoMatched: true,  centreOperator: true,  deletedAt: "12 April, 2026 12:22 PM" },
+  { id: 3, rollNo: "156066199", name: "RAMESH NARDI",       device: "UNRP54TVZ", comments: "",                           photoMatched: true,  centreOperator: false, deletedAt: "12 March, 2026 01:35 PM"  },
+  { id: 4, rollNo: "156056400", name: "GANGADHAR HEMBRAM",  device: "HA0RUDGE",  comments: "",                           photoMatched: false, centreOperator: null,  deletedAt: "12 December, 2026 09:10 AM" },
+  { id: 5, rollNo: "156078342", name: "PRIYA SHARMA",       device: "XB1TQAZW",  comments: "Device mismatch reported",   photoMatched: null,  centreOperator: true,  deletedAt: "12 August, 2026 07:25 AM"},
+  { id: 6, rollNo: "156099001", name: "RAJIV MEHTA",        device: "ZC3PLNMQ",  comments: "",                           photoMatched: true,  centreOperator: true,  deletedAt: "12 April, 2026 03:50 PM" },
 ];
 
 // ─── StatusIcon ───────────────────────────────────────────────────────────────
@@ -282,7 +282,7 @@ export default function DeletedPage() {
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
-  const PAGE_SIZE = 4;
+  const PAGE_SIZE = 5;
   const filterBadgeCount = countActiveFilters(activeFilters);
 
   // ── Filtering ──────────────────────────────────────────────────────────────
@@ -527,7 +527,7 @@ export default function DeletedPage() {
                   <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Comments</TableHead>
 
                   <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider text-center">Photo Matched</TableHead>
-                  <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider text-center">Centre Operator</TableHead>
+                  <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider text-center">Deleted By</TableHead>
 
                   <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                     <div className="inline-flex items-center gap-1">

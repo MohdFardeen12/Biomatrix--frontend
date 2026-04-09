@@ -560,7 +560,7 @@ function SidebarFilter({
                       Device
                     </th>
                     <th className="border border-slate-300 px-4 py-3 text-[13px] text-center font-semibold text-slate-700">
-                      Scanned
+                      Match %
                     </th>
                   </tr>
                 </thead>

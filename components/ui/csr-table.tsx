@@ -26,34 +26,56 @@ export type CSRRow = {
   rating: number
 }
 
-export type CSRSortKey = "id" | "customer" | "count" | "date" | "status" | "rating"
+// ✅ UPDATED: added "authenticated" in sortable keys
+export type CSRSortKey = "id" | "customer" | "authenticated" | "count" | "date" | "status" | "rating"
 export type CSRSortDirection = "asc" | "desc" | null
 
-export type CSRFilterFieldKey = "id" | "customer" | "status"
+// ✅ UPDATED: added new filter field keys
+export type CSRFilterFieldKey = "id" | "customer" | "status" | "feedback" | "authenticated" | "count" | "date" | "rating"
 
 export interface CSRTextFilter { value: string }
+
+// ✅ NEW: range filter for authenticated/count
+export interface CSRNumberRangeFilter {
+  min?: string
+  max?: string
+}
+
+// ✅ NEW: date range filter
+export interface CSRDateRangeFilter {
+  from?: string
+  to?: string
+}
+
+// ✅ NEW: exact rating filter
+export interface CSRRatingFilter {
+  value?: string
+}
+
 export interface CSRActiveFilters {
-  text: Partial<Record<CSRFilterFieldKey, CSRTextFilter>>
+  text: Partial<Record<"id" | "customer" | "status" | "feedback", CSRTextFilter>>
+  numberRange: Partial<Record<"authenticated" | "count", CSRNumberRangeFilter>>
+  dateRange: Partial<Record<"date", CSRDateRangeFilter>>
+  rating: Partial<Record<"rating", CSRRatingFilter>>
 }
 
-export const csrEmptyFilters = (): CSRActiveFilters => ({ text: {} })
+// ✅ UPDATED: expanded empty filter structure
+export const csrEmptyFilters = (): CSRActiveFilters => ({
+  text: {},
+  numberRange: {},
+  dateRange: {},
+  rating: {},
+})
 
+// ✅ UPDATED: count all filter types for badge
 export function csrCountActiveFilters(f: CSRActiveFilters) {
-  return Object.values(f.text).filter((v) => v && v.value.trim() !== "").length
+  const textCount = Object.values(f.text).filter((v) => v && v.value.trim() !== "").length
+  const numberRangeCount = Object.values(f.numberRange).filter((v) => v && ((v.min ?? "").trim() !== "" || (v.max ?? "").trim() !== "")).length
+  const dateRangeCount = Object.values(f.dateRange).filter((v) => v && ((v.from ?? "").trim() !== "" || (v.to ?? "").trim() !== "")).length
+  const ratingCount = Object.values(f.rating).filter((v) => v && (v.value ?? "").trim() !== "").length
+
+  return textCount + numberRangeCount + dateRangeCount + ratingCount
 }
-
-// ─── Default data ─────────────────────────────────────────────────────────────
-
-const defaultFeedbackData: CSRRow[] = [
-  { id: "A1B2C", customer: "DAV School",   email: "dav@example.com",     authenticated: 38, count: 42, feedback: "Excellent prep tools.", documentName: "exam_report_march.pdf",   date: "2024-03-15", status: "Resolved",    rating: 5 },
-  { id: "D3E4F", customer: "ABC Acad",     email: "abc@example.com",     authenticated: 28, count: 28, feedback: "Good analytics, needs customization.", documentName: "analytics_feedback.png", date: "2024-03-14", status: "Resolved",    rating: 4 },
-  { id: "G5H6I", customer: "Prime Inst",   email: "prime@example.com",   authenticated: 10, count: 15, feedback: "Easy and intuitive assessments.", documentName: "satisfaction_report.pdf", date: "2024-03-13", status: "Resolved",    rating: 5 },
-  { id: "J7K8L", customer: "Edu Hub",      email: "eduhub@example.com",  authenticated: 7,  count: 7,  feedback: "Reporting issues, support helping.", documentName: "issue_screenshot.jpg",    date: "2024-03-12", status: "In Progress", rating: 3 },
-  { id: "M9N0P", customer: "Bright Acad",  email: "bright@example.com",  authenticated: 53, count: 63, feedback: "Improved pass rates significantly.", documentName: "pass_rate_report.pdf",    date: "2024-03-11", status: "Resolved",    rating: 5 },
-  { id: "Q1R2S", customer: "NextGen Edu",  email: "nextgen@example.com", authenticated: 10, count: 11, feedback: "Great question variety.", documentName: "put_report.jpg",          date: "2024-03-10", status: "Resolved",    rating: 4 },
-  { id: "T3U4V", customer: "Skill Ctr",    email: "skill@example.com",   authenticated: 3,  count: 3,  feedback: "Batch processing issues.", documentName: "error_log.pdf",           date: "2024-03-09", status: "Pending",     rating: 2 },
-  { id: "W5X6Y", customer: "Demo Ctr",     email: "demo@example.com",    authenticated: 79, count: 89, feedback: "Great support and quality.", documentName: "support_ticket.jpeg",     date: "2024-03-08", status: "Resolved",    rating: 5 },
-]
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -146,43 +168,95 @@ interface CSRTableProps {
   sortKey: CSRSortKey | null
   sortDirection: CSRSortDirection
   onSort: (key: CSRSortKey) => void
+  onRemoveDocument: (id: string) => void
 }
 
-export function CSRTable({ data, activeFilters, sortKey, sortDirection, onSort }: CSRTableProps) {
-  const [tableData, setTableData] = React.useState<CSRRow[]>(data && data.length > 0 ? data : defaultFeedbackData)
+export function CSRTable({ data, activeFilters, sortKey, sortDirection, onSort, onRemoveDocument }: CSRTableProps) {
+  // IMPORTANT: No internal fallback data here now; parent fully controls the dataset.
+  const tableData = React.useMemo(() => data ?? [], [data])
   const [currentPage, setCurrentPage] = React.useState(1)
   const ITEMS_PER_PAGE = 5
+
+  // ✅ NEW: helper for date parsing (for date range filter + sorting)
+  const parseRowDate = React.useCallback((dateStr: string) => {
+    const parsed = new Date(dateStr)
+    return isNaN(parsed.getTime()) ? null : parsed
+  }, [])
 
   // ── Filter ─────────────────────────────────────────────────────────────────
 
   const filtered = React.useMemo(() => {
     let result = [...tableData]
-    for (const [key, f] of Object.entries(activeFilters.text) as [CSRFilterFieldKey, CSRTextFilter][]) {
+
+    // text filters
+    for (const [key, f] of Object.entries(activeFilters.text) as [keyof CSRActiveFilters["text"], CSRTextFilter][]) {
       if (!f || f.value.trim() === "") continue
       const q = f.value.trim().toLowerCase()
       result = result.filter((r) => String(r[key]).toLowerCase().includes(q))
     }
+
+    // ✅ NEW: number range filters for authenticated and count
+    for (const [key, f] of Object.entries(activeFilters.numberRange) as [keyof CSRActiveFilters["numberRange"], CSRNumberRangeFilter][]) {
+      if (!f) continue
+      const min = f.min?.trim() !== "" ? Number(f.min) : null
+      const max = f.max?.trim() !== "" ? Number(f.max) : null
+
+      if (min === null && max === null) continue
+
+      result = result.filter((r) => {
+        const value = r[key]
+        if (min !== null && value < min) return false
+        if (max !== null && value > max) return false
+        return true
+      })
+    }
+
+    // ✅ NEW: date range filter
+    const dateFilter = activeFilters.dateRange.date
+    if (dateFilter && ((dateFilter.from ?? "").trim() !== "" || (dateFilter.to ?? "").trim() !== "")) {
+      const fromDate = dateFilter.from ? new Date(`${dateFilter.from}T00:00:00`) : null
+      const toDate = dateFilter.to ? new Date(`${dateFilter.to}T23:59:59.999`) : null
+
+      result = result.filter((r) => {
+        const rowDate = parseRowDate(r.date)
+        if (!rowDate) return false
+        if (fromDate && rowDate < fromDate) return false
+        if (toDate && rowDate > toDate) return false
+        return true
+      })
+    }
+
+    // ✅ NEW: exact rating filter
+    const ratingFilter = activeFilters.rating.rating
+    if (ratingFilter && (ratingFilter.value ?? "").trim() !== "") {
+      const ratingValue = Number(ratingFilter.value)
+      if (!isNaN(ratingValue)) {
+        result = result.filter((r) => r.rating === ratingValue)
+      }
+    }
+
     return result
-  }, [tableData, activeFilters])
+  }, [tableData, activeFilters, parseRowDate])
 
   // ── Sort ───────────────────────────────────────────────────────────────────
 
   const sorted = React.useMemo(() => {
     if (!sortKey || !sortDirection) return filtered
     return [...filtered].sort((a, b) => {
-      if (sortKey === "count" || sortKey === "rating") {
+      // ✅ UPDATED: added authenticated as numeric sort
+      if (sortKey === "authenticated" || sortKey === "count" || sortKey === "rating") {
         return sortDirection === "asc" ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey]
       }
       if (sortKey === "date") {
-        return sortDirection === "asc"
-          ? new Date(a.date).getTime() - new Date(b.date).getTime()
-          : new Date(b.date).getTime() - new Date(a.date).getTime()
+        const aDate = parseRowDate(a.date)?.getTime() ?? 0
+        const bDate = parseRowDate(b.date)?.getTime() ?? 0
+        return sortDirection === "asc" ? aDate - bDate : bDate - aDate
       }
       const aVal = String(a[sortKey]).toLowerCase()
       const bVal = String(b[sortKey]).toLowerCase()
       return sortDirection === "asc" ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
     })
-  }, [filtered, sortKey, sortDirection])
+  }, [filtered, sortKey, sortDirection, parseRowDate])
 
   // ── Pagination ─────────────────────────────────────────────────────────────
 
@@ -193,15 +267,12 @@ export function CSRTable({ data, activeFilters, sortKey, sortDirection, onSort }
     return sorted.slice(start, start + ITEMS_PER_PAGE)
   }, [sorted, currentPage])
 
+  // IMPORTANT: Reset to page 1 whenever filters/sort/data change so user never lands on empty page unexpectedly.
+  React.useEffect(() => {
+    setCurrentPage(1)
+  }, [activeFilters, sortKey, sortDirection, tableData])
+
   React.useEffect(() => { if (currentPage > totalPages) setCurrentPage(1) }, [currentPage, totalPages])
-
-  // ── Document handlers ──────────────────────────────────────────────────────
-
-  // const handleUpload = (id: string, file: File) =>
-  //   setTableData((prev) => prev.map((row) => row.id === id ? { ...row, documentName: file.name, document: file } : row))
-
-  const handleRemove = (id: string) =>
-  setTableData((prev) => prev.map((row) => row.id === id ? { ...row, documentName: undefined } : row))
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -223,7 +294,10 @@ export function CSRTable({ data, activeFilters, sortKey, sortDirection, onSort }
                 <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                   <div className="inline-flex items-center gap-1">Center Name <SortIconButton columnKey="customer" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} isText /></div>
                 </TableHead>
-                <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Authenticated</TableHead>
+                <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
+                  {/* ✅ UPDATED: added sort on Authenticated column */}
+                  <div className="inline-flex items-center gap-1">Authenticated <SortIconButton columnKey="authenticated" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} /></div>
+                </TableHead>
                 <TableHead className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                   <div className="inline-flex items-center gap-1">Count <SortIconButton columnKey="count" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} /></div>
                 </TableHead>
@@ -261,10 +335,10 @@ export function CSRTable({ data, activeFilters, sortKey, sortDirection, onSort }
                     <TableCell className="max-w-[260px] truncate text-[12px] text-slate-600">{item.feedback}</TableCell>
                     <TableCell>
                       {/* onUpload={handleUpload} */}
-                      <DocumentCell documentName={item.documentName} rowId={item.id} onRemove={handleRemove} />
+                      <DocumentCell documentName={item.documentName} rowId={item.id} onRemove={onRemoveDocument} />
                     </TableCell>
                     <TableCell className="text-[11px] text-slate-600 whitespace-nowrap">
-                      {new Date(item.date).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+                      {item.date}
                     </TableCell>
                     <TableCell><StatusBadge status={item.status} /></TableCell>
                     <TableCell className="pr-6"><StarRating rating={item.rating} /></TableCell>

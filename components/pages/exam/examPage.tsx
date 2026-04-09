@@ -37,7 +37,10 @@ interface RowData {
   enrollments: number;
   walkins: number;
   fr: number;
+
+  // ✅ UPDATED: CSR is now star rating (1 to 5) instead of score value
   csr: number | null;
+
   csrColor: string;
   duplicate: string;
   dataDownload: string;
@@ -76,7 +79,7 @@ type FilterFieldKey =
 interface FilterField {
   key: FilterFieldKey;
   label: string;
-  type: "numeric" | "text";
+  type: "numeric" | "text" | "star";
 }
 
 const FILTER_FIELDS: FilterField[] = [
@@ -89,16 +92,23 @@ const FILTER_FIELDS: FilterField[] = [
   { key: "enrollments", label: "Enrollments",  type: "numeric" },
   { key: "walkins",     label: "Walkins",      type: "numeric" },
   { key: "fr",          label: "FR Count",     type: "numeric" },
-  { key: "csr",         label: "CSR",          type: "numeric" },
+
+  // ✅ UPDATED: CSR filter is now star-based exact match instead of numeric min/max
+  { key: "csr",         label: "CSR",          type: "star"    },
+
   { key: "duplicate",   label: "Duplicate",    type: "numeric" },
 ];
 
 interface NumericFilter { min: string; max: string }
 interface TextFilter    { value: string }
 
+// ✅ UPDATED: New CSR star filter type (exact star match 1–5)
+interface StarFilter    { value: string }
+
 interface ActiveFilters {
-  numeric: Partial<Record<FilterFieldKey, NumericFilter>>;
+  numeric: Partial<Record<Exclude<FilterFieldKey, "csr">, NumericFilter>>;
   text:    Partial<Record<FilterFieldKey, TextFilter>>;
+  star:    Partial<Record<"csr", StarFilter>>;
 }
 
 // ─── Static data ──────────────────────────────────────────────────────────────
@@ -106,44 +116,52 @@ interface ActiveFilters {
 const tableData: RowData[] = [
   {
     sn: 1, devices: 6, centreCode: "156008", city: "JH-Jamshedpur",
-    rm: "Vivek, Afsar, Jyoti", name: "AIWC ACADEMY OF EXCELLENCE JAMSHEDPUR",
-    total: 540, enrollments: 466, walkins: 7, fr: 456, csr: 460,
+    rm: "Vivek", name: "AIWC ACADEMY OF EXCELLENCE JAMSHEDPUR",
+    total: 540, enrollments: 466, walkins: 7, fr: 456,
+    // ✅ UPDATED: CSR changed from score to star rating
+    csr: 4,
     csrColor: "bg-orange-400", duplicate: "3", dataDownload: "5/6",
   },
   {
     sn: 2, devices: 5, centreCode: "156011", city: "JH-Dhanbad",
-    rm: "Ravi, Neha, Aman", name: "ST MARY SCHOOL BISTUPUR",
-    total: 480, enrollments: 413, walkins: 6, fr: 394, csr: 413,
+    rm: "Ravi", name: "ST MARY SCHOOL BISTUPUR",
+    total: 480, enrollments: 413, walkins: 6, fr: 394,
+    csr: 5,
     csrColor: "bg-green-500", duplicate: "2", dataDownload: "4/5",
   },
   {
     sn: 3, devices: 4, centreCode: "156014", city: "JH-Ranchi",
-    rm: "Kiran, Mohit, Sona", name: "VALLEY VIEW SCHOOL TELCO",
-    total: 360, enrollments: 299, walkins: 5, fr: 294, csr: 299,
+    rm: "Kiran", name: "VALLEY VIEW SCHOOL TELCO",
+    total: 360, enrollments: 299, walkins: 5, fr: 294,
+    csr: 3,
     csrColor: "bg-green-500", duplicate: "4", dataDownload: "3/4",
   },
   {
     sn: 4, devices: 4, centreCode: "156018", city: "UP-Agra",
-    rm: "Amit, Pooja, Raj", name: "DAV PUBLIC SCHOOL AGRA",
-    total: 350, enrollments: 280, walkins: 8, fr: 275, csr: 280,
+    rm: "Amit", name: "DAV PUBLIC SCHOOL AGRA",
+    total: 350, enrollments: 280, walkins: 8, fr: 275,
+    csr: 4,
     csrColor: "bg-green-500", duplicate: "1", dataDownload: "2/4",
   },
   {
     sn: 5, devices: 7, centreCode: "156022", city: "MH-Mumbai",
-    rm: "Sneha, Rahul, Kunal", name: "OXFORD HIGH SCHOOL MUMBAI",
-    total: 600, enrollments: 520, walkins: 9, fr: 510, csr: 515,
+    rm: "Sneha", name: "OXFORD HIGH SCHOOL MUMBAI",
+    total: 600, enrollments: 520, walkins: 9, fr: 510,
+    csr: 2,
     csrColor: "bg-orange-400", duplicate: "5", dataDownload: "6/7",
   },
   {
     sn: 6, devices: 3, centreCode: "156030", city: "DL-Delhi",
-    rm: "Ankit, Priya, Rohan", name: "DELHI PUBLIC SCHOOL DELHI",
-    total: 300, enrollments: 250, walkins: 4, fr: 245, csr: 248,
+    rm: "Ankit", name: "DELHI PUBLIC SCHOOL DELHI",
+    total: 300, enrollments: 250, walkins: 4, fr: 245,
+    csr: 5,
     csrColor: "bg-green-500", duplicate: "2", dataDownload: "2/3",
   },
   {
     sn: 7, devices: 5, centreCode: "156035", city: "KA-Bangalore",
-    rm: "Deepak, Nisha, Arjun", name: "NATIONAL SCHOOL BANGALORE",
-    total: 450, enrollments: 390, walkins: 7, fr: 385, csr: 388,
+    rm: "Deepak", name: "NATIONAL SCHOOL BANGALORE",
+    total: 450, enrollments: 390, walkins: 7, fr: 385,
+    csr: 1,
     csrColor: "bg-orange-400", duplicate: "3", dataDownload: "4/5",
   },
 ];
@@ -175,10 +193,16 @@ function countActiveFilters(filters: ActiveFilters): number {
   for (const f of Object.values(filters.text)) {
     if (f && f.value.trim() !== "") count++;
   }
+
+  // ✅ UPDATED: Count active CSR star filter
+  for (const f of Object.values(filters.star)) {
+    if (f && f.value.trim() !== "") count++;
+  }
+
   return count;
 }
 
-const emptyFilters = (): ActiveFilters => ({ numeric: {}, text: {} });
+const emptyFilters = (): ActiveFilters => ({ numeric: {}, text: {}, star: {} });
 
 // ─── Sidebar filter component ─────────────────────────────────────────────────
 
@@ -216,7 +240,7 @@ function SidebarFilter({ open, onClose, filters, onApply, onClearAll }: SidebarF
   const toggleExpanded = (key: FilterFieldKey) =>
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  const setNumeric = (key: FilterFieldKey, field: "min" | "max", value: string) => {
+  const setNumeric = (key: Exclude<FilterFieldKey, "csr">, field: "min" | "max", value: string) => {
     setDraft((prev) => ({
       ...prev,
       numeric: {
@@ -233,10 +257,26 @@ function SidebarFilter({ open, onClose, filters, onApply, onClearAll }: SidebarF
     }));
   };
 
+  // ✅ UPDATED: Setter for CSR star filter
+  const setStar = (key: "csr", value: string) => {
+    let sanitized = value.replace(/\D/g, "");
+    if (sanitized !== "") {
+      const numeric = Number(sanitized);
+      if (numeric < 1) sanitized = "1";
+      if (numeric > 5) sanitized = "5";
+    }
+
+    setDraft((prev) => ({
+      ...prev,
+      star: { ...prev.star, [key]: { value: sanitized } },
+    }));
+  };
+
   const clearField = (field: FilterField) => {
     setDraft((prev) => {
       const next = JSON.parse(JSON.stringify(prev)) as ActiveFilters;
-      if (field.type === "numeric") delete next.numeric[field.key];
+      if (field.type === "numeric") delete next.numeric[field.key as Exclude<FilterFieldKey, "csr">];
+      else if (field.type === "star") delete next.star[field.key as "csr"];
       else delete next.text[field.key];
       return next;
     });
@@ -295,12 +335,16 @@ function SidebarFilter({ open, onClose, filters, onApply, onClearAll }: SidebarF
         <div className="flex-1 overflow-y-auto py-2">
           {FILTER_FIELDS.map((field) => {
             const isOpen = !!expanded[field.key];
-            const numVal = draft.numeric[field.key];
+            const numVal = field.type === "numeric" ? draft.numeric[field.key as Exclude<FilterFieldKey, "csr">] : undefined;
             const txtVal = draft.text[field.key];
+            const starVal = field.type === "star" ? draft.star[field.key as "csr"] : undefined;
+
             const hasValue =
               field.type === "numeric"
-                ? numVal && (numVal.min !== "" || numVal.max !== "")
-                : txtVal && txtVal.value.trim() !== "";
+                ? !!(numVal && (numVal.min !== "" || numVal.max !== ""))
+                : field.type === "star"
+                ? !!(starVal && starVal.value.trim() !== "")
+                : !!(txtVal && txtVal.value.trim() !== "");
 
             return (
               <div key={field.key} className="border-b border-slate-100 last:border-0">
@@ -344,7 +388,7 @@ function SidebarFilter({ open, onClose, filters, onApply, onClearAll }: SidebarF
                           <input
                             type="number"
                             value={numVal?.min ?? ""}
-                            onChange={(e) => setNumeric(field.key, "min", e.target.value)}
+                            onChange={(e) => setNumeric(field.key as Exclude<FilterFieldKey, "csr">, "min", e.target.value)}
                             placeholder="0"
                             className="w-full h-8 rounded-md border border-slate-200 px-2.5 text-[13px] text-slate-700 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-100 transition"
                           />
@@ -355,11 +399,28 @@ function SidebarFilter({ open, onClose, filters, onApply, onClearAll }: SidebarF
                           <input
                             type="number"
                             value={numVal?.max ?? ""}
-                            onChange={(e) => setNumeric(field.key, "max", e.target.value)}
+                            onChange={(e) => setNumeric(field.key as Exclude<FilterFieldKey, "csr">, "max", e.target.value)}
                             placeholder="∞"
                             className="w-full h-8 rounded-md border border-slate-200 px-2.5 text-[13px] text-slate-700 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-100 transition"
                           />
                         </div>
+                      </div>
+                    ) : field.type === "star" ? (
+                      // ✅ UPDATED: CSR filter UI now accepts exact star number (1–5)
+                      <div>
+                        <label className="block text-[10px] text-slate-400 mb-1 uppercase tracking-wide">Star Rating</label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={5}
+                          value={starVal?.value ?? ""}
+                          onChange={(e) => setStar(field.key as "csr", e.target.value)}
+                          placeholder="Enter 1 to 5"
+                          className="w-full h-8 rounded-md border border-slate-200 px-2.5 text-[13px] text-slate-700 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-100 transition"
+                        />
+                        <p className="mt-1 text-[10px] text-slate-400">
+                          Enter exact star value (1⭐ to 5⭐)
+                        </p>
                       </div>
                     ) : (
                       <div>
@@ -413,7 +474,7 @@ export default function DataTable() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>(emptyFilters());
 
-  const PAGE_SIZE = 4;
+  const PAGE_SIZE = 5;
 
   const filterBadgeCount = countActiveFilters(activeFilters);
 
@@ -428,16 +489,29 @@ export default function DataTable() {
     if (query) {
       data = data.filter((row) => {
         const values = [
-          row.sn, row.devices, row.centreCode, row.city, row.rm, row.name,
-          row.total, row.enrollments, row.walkins, row.fr, row.csr ?? "",
-          row.duplicate, row.dataDownload,
+          row.sn,
+          row.devices,
+          row.centreCode,
+          row.city,
+          row.rm,
+          row.name,
+          row.total,
+          row.enrollments,
+          row.walkins,
+          row.fr,
+
+          // ✅ UPDATED: Include display format in global search too (e.g. 4⭐)
+          row.csr !== null ? `${row.csr}⭐` : "",
+
+          row.duplicate,
+          row.dataDownload,
         ];
         return values.some((v) => String(v).toLowerCase().includes(query));
       });
     }
 
     // Sidebar numeric filters
-    for (const [key, filter] of Object.entries(activeFilters.numeric) as [FilterFieldKey, NumericFilter][]) {
+    for (const [key, filter] of Object.entries(activeFilters.numeric) as [Exclude<FilterFieldKey, "csr">, NumericFilter][]) {
       if (!filter) continue;
       const min = filter.min !== "" ? Number(filter.min) : null;
       const max = filter.max !== "" ? Number(filter.max) : null;
@@ -458,6 +532,13 @@ export default function DataTable() {
       );
     }
 
+    // ✅ UPDATED: CSR star filter (exact match 1–5)
+    for (const [key, filter] of Object.entries(activeFilters.star) as ["csr", StarFilter][]) {
+      if (!filter || filter.value.trim() === "") continue;
+      const selectedStar = Number(filter.value);
+      data = data.filter((row) => row[key] === selectedStar);
+    }
+
     return data;
   }, [searchTerm, activeFilters]);
 
@@ -474,7 +555,10 @@ export default function DataTable() {
       case "enrollments": return row.enrollments;
       case "walkins":     return row.walkins;
       case "fr":          return row.fr;
+
+      // ✅ UPDATED: CSR sort now sorts by star value (1–5)
       case "csr":         return row.csr ?? -1;
+
       case "duplicate":   return Number(row.duplicate);
       default:            return "";
     }
@@ -543,9 +627,22 @@ export default function DataTable() {
   const handleExportCSV = () => {
     const headers = ["S.N.","Devices","Centre Code","City","RM","Name","Total","Enrollments","Walkins","FR count","CSR","Duplicate","Data download"];
     const rows = sortedData.map((row) => [
-      row.sn, row.devices, row.centreCode, row.city, row.rm, row.name,
-      row.total, row.enrollments, row.walkins, row.fr, row.csr ?? "-",
-      row.duplicate, row.dataDownload,
+      row.sn,
+      row.devices,
+      row.centreCode,
+      row.city,
+      row.rm,
+      row.name,
+      row.total,
+      row.enrollments,
+      row.walkins,
+      row.fr,
+
+      // ✅ UPDATED: Export CSR in display format like 4⭐
+      row.csr !== null ? `${row.csr}⭐` : "-",
+
+      row.duplicate,
+      row.dataDownload,
     ]);
     const csv = [headers, ...rows]
       .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
@@ -664,7 +761,7 @@ export default function DataTable() {
       {/* Active filter chips */}
       {filterBadgeCount > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
-          {(Object.entries(activeFilters.numeric) as [FilterFieldKey, NumericFilter][]).map(([key, f]) => {
+          {(Object.entries(activeFilters.numeric) as [Exclude<FilterFieldKey, "csr">, NumericFilter][]).map(([key, f]) => {
             if (!f || (f.min === "" && f.max === "")) return null;
             const label = FILTER_FIELDS.find((x) => x.key === key)?.label ?? key;
             return (
@@ -684,6 +781,7 @@ export default function DataTable() {
               </span>
             );
           })}
+
           {(Object.entries(activeFilters.text) as [FilterFieldKey, TextFilter][]).map(([key, f]) => {
             if (!f || f.value.trim() === "") return null;
             const label = FILTER_FIELDS.find((x) => x.key === key)?.label ?? key;
@@ -704,6 +802,29 @@ export default function DataTable() {
               </span>
             );
           })}
+
+          {/* ✅ UPDATED: Active chip for CSR star filter */}
+          {(Object.entries(activeFilters.star) as ["csr", StarFilter][]).map(([key, f]) => {
+            if (!f || f.value.trim() === "") return null;
+            const label = FILTER_FIELDS.find((x) => x.key === key)?.label ?? key;
+            return (
+              <span key={key} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-[11px] text-slate-600 font-medium">
+                {label}: {f.value}⭐
+                <button
+                  onClick={() => {
+                    const next = JSON.parse(JSON.stringify(activeFilters)) as ActiveFilters;
+                    delete next.star[key];
+                    setActiveFilters(next);
+                    setPage(1);
+                  }}
+                  className="text-slate-400 hover:text-rose-500 transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            );
+          })}
+
           <button
             onClick={handleClearAllFilters}
             className="text-[11px] text-rose-500 hover:text-rose-700 font-medium transition-colors"
@@ -793,13 +914,17 @@ export default function DataTable() {
                   <td className="px-2 py-3 text-center text-[12px] text-slate-700">{row.enrollments}</td>
                   <td className="px-2 py-3 text-center text-[12px] text-slate-700">{row.walkins}</td>
                   <td className="px-2 py-3 text-center text-[12px] text-slate-700">{row.fr}</td>
+
+                  {/* ✅ UPDATED: CSR now displays exactly like 4⭐ instead of score or repeated stars */}
                   <td className="px-2 py-3 text-center">
-                    {row.csr !== null && (
+                    {/* {row.csr !== null && (
                       <span className={`inline-block px-2 py-0.5 rounded text-white font-semibold ${row.csrColor}`}>
-                        {row.csr}
+                        {row.csr}⭐
                       </span>
-                    )}
+                    )} */}
+                    {row.csr}⭐
                   </td>
+
                   <td className="px-2 py-3 text-center text-[12px] text-slate-700">{row.duplicate}</td>
                   <td className="px-2 py-3 text-center text-[12px] text-slate-700">{row.dataDownload}</td>
                 </tr>

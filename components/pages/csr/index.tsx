@@ -189,8 +189,21 @@
 
 "use client"
 
-import { useRef, useState } from "react"
-import { CSRTable, type CSRRow, type CSRSortKey, type CSRSortDirection, type CSRActiveFilters, type CSRFilterFieldKey, type CSRTextFilter, csrEmptyFilters, csrCountActiveFilters } from "@/components/ui/csr-table"
+import { useMemo, useRef, useState } from "react"
+import {
+  CSRTable,
+  type CSRRow,
+  type CSRSortKey,
+  type CSRSortDirection,
+  type CSRActiveFilters,
+  type CSRFilterFieldKey,
+  type CSRTextFilter,
+  type CSRNumberRangeFilter,
+  type CSRDateRangeFilter,
+  type CSRRatingFilter,
+  csrEmptyFilters,
+  csrCountActiveFilters,
+} from "@/components/ui/csr-table"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -205,9 +218,27 @@ import { useEffect } from "react"
 // ─── Filter field definitions ─────────────────────────────────────────────────
 
 const FILTER_FIELDS: { key: CSRFilterFieldKey; label: string }[] = [
-  { key: "id",       label: "ID"          },
-  { key: "customer", label: "Center Name" },
-  { key: "status",   label: "Status"      },
+  { key: "id",            label: "ID"            },
+  { key: "customer",      label: "Center Name"   },
+  { key: "status",        label: "Status"        },
+  { key: "feedback",      label: "Feedback"      },
+  { key: "authenticated", label: "Authenticated" },
+  { key: "count",         label: "Count"         },
+  { key: "date",          label: "Date"          },
+  { key: "rating",        label: "Rating"        },
+]
+
+// ─── Default data moved here so parent is the single source of truth ─────────
+// IMPORTANT: Table UI and Export now both use the same dataset from parent.
+const defaultFeedbackData: CSRRow[] = [
+  { id: "A1B2C", customer: "DAV School",   email: "dav@example.com",     authenticated: 38, count: 42, feedback: "Excellent prep tools.", documentName: "exam_report_march.pdf",   date: "08 April, 2026", status: "Resolved",    rating: 5 },
+  { id: "D3E4F", customer: "ABC Acad",     email: "abc@example.com",     authenticated: 28, count: 28, feedback: "Good analytics, needs customization.", documentName: "analytics_feedback.png", date: "07 April, 2026", status: "Resolved",    rating: 4 },
+  { id: "G5H6I", customer: "Prime Inst",   email: "prime@example.com",   authenticated: 10, count: 15, feedback: "Easy and intuitive assessments.", documentName: "satisfaction_report.pdf", date: "06 April, 2026", status: "Resolved",    rating: 5 },
+  { id: "J7K8L", customer: "Edu Hub",      email: "eduhub@example.com",  authenticated: 7,  count: 7,  feedback: "Reporting issues, support helping.", documentName: "issue_screenshot.jpg",    date: "05 April, 2026", status: "In Progress", rating: 3 },
+  { id: "M9N0P", customer: "Bright Acad",  email: "bright@example.com",  authenticated: 53, count: 63, feedback: "Improved pass rates significantly.", documentName: "pass_rate_report.pdf",    date: "04 April, 2026", status: "Resolved",    rating: 5 },
+  { id: "Q1R2S", customer: "NextGen Edu",  email: "nextgen@example.com", authenticated: 10, count: 11, feedback: "Great question variety.", documentName: "put_report.jpg",          date: "03 April, 2026", status: "Resolved",    rating: 4 },
+  { id: "T3U4V", customer: "Skill Ctr",    email: "skill@example.com",   authenticated: 3,  count: 3,  feedback: "Batch processing issues.", documentName: "error_log.pdf",           date: "02 April, 2026", status: "Pending",     rating: 2 },
+  { id: "W5X6Y", customer: "Demo Ctr",     email: "demo@example.com",    authenticated: 79, count: 89, feedback: "Great support and quality.", documentName: "support_ticket.jpeg",     date: "01 April, 2026", status: "Resolved",    rating: 5 },
 ]
 
 // ─── Sidebar Filter ───────────────────────────────────────────────────────────
@@ -231,11 +262,61 @@ function SidebarFilter({ open, onClose, filters, onApply, onClearAll }: {
 
   const toggle = (key: CSRFilterFieldKey) => setExpanded((p) => ({ ...p, [key]: !p[key] }))
 
-  const setText = (key: CSRFilterFieldKey, value: string) =>
+  const setText = (key: Extract<CSRFilterFieldKey, "id" | "customer" | "status" | "feedback">, value: string) =>
     setDraft((p) => ({ ...p, text: { ...p.text, [key]: { value } } }))
 
+  // NEW: set min/max for authenticated and count
+  const setNumberRange = (key: Extract<CSRFilterFieldKey, "authenticated" | "count">, type: "min" | "max", value: string) =>
+    setDraft((p) => ({
+      ...p,
+      numberRange: {
+        ...p.numberRange,
+        [key]: {
+          ...(p.numberRange[key] ?? {}),
+          [type]: value,
+        },
+      },
+    }))
+
+  // NEW: set date from/to
+  const setDateRange = (type: "from" | "to", value: string) =>
+    setDraft((p) => ({
+      ...p,
+      dateRange: {
+        ...p.dateRange,
+        date: {
+          ...(p.dateRange.date ?? {}),
+          [type]: value,
+        },
+      },
+    }))
+
+  // NEW: set exact rating
+  const setRating = (value: string) =>
+    setDraft((p) => ({
+      ...p,
+      rating: {
+        ...p.rating,
+        rating: { value },
+      },
+    }))
+
   const clearField = (key: CSRFilterFieldKey) =>
-    setDraft((p) => { const n = JSON.parse(JSON.stringify(p)); delete n.text[key]; return n })
+    setDraft((p) => {
+      const n = JSON.parse(JSON.stringify(p)) as CSRActiveFilters
+
+      if (key === "id" || key === "customer" || key === "status" || key === "feedback") {
+        delete n.text[key]
+      } else if (key === "authenticated" || key === "count") {
+        delete n.numberRange[key]
+      } else if (key === "date") {
+        delete n.dateRange.date
+      } else if (key === "rating") {
+        delete n.rating.rating
+      }
+
+      return n
+    })
 
   const handleApply = () => { onApply(draft); onClose() }
   const handleClearAll = () => { setDraft(csrEmptyFilters()); setExpanded({}); onClearAll() }
@@ -257,30 +338,120 @@ function SidebarFilter({ open, onClose, filters, onApply, onClearAll }: {
         <div className="flex-1 overflow-y-auto py-2">
           {FILTER_FIELDS.map((field) => {
             const isOpen = !!expanded[field.key]
-            const val = draft.text[field.key]
-            const hasValue = val && val.value.trim() !== ""
+
+            const hasValue =
+              field.key === "id" || field.key === "customer" || field.key === "status" || field.key === "feedback"
+                ? !!(draft.text[field.key]?.value?.trim())
+                : field.key === "authenticated" || field.key === "count"
+                ? !!((draft.numberRange[field.key]?.min ?? "").trim() || (draft.numberRange[field.key]?.max ?? "").trim())
+                : field.key === "date"
+                ? !!((draft.dateRange.date?.from ?? "").trim() || (draft.dateRange.date?.to ?? "").trim())
+                : field.key === "rating"
+                ? !!((draft.rating.rating?.value ?? "").trim())
+                : false
+
             return (
               <div key={field.key} className="border-b border-slate-100 last:border-0">
-                <button type="button" onClick={() => toggle(field.key)} className="w-full flex items-center justify-between px-5 py-3 hover:bg-slate-50 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-medium text-slate-700">{field.label}</span>
-                    {hasValue && <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" />}
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    {hasValue && <button type="button" onClick={(e) => { e.stopPropagation(); clearField(field.key) }} className="text-[11px] text-slate-400 hover:text-rose-500 transition-colors">Clear</button>}
-                    {isOpen ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
-                  </div>
-                </button>
+                <div className="flex items-center justify-between px-5 py-3 hover:bg-slate-50">
+                  <button
+                    type="button"
+                    onClick={() => toggle(field.key)}
+                    className="flex-1 text-left"
+                  >
+                    {field.label}
+                  </button>
+                
+                  {hasValue && (
+                    <button
+                      type="button"
+                      onClick={() => clearField(field.key)}
+                      className="text-[11px] text-slate-400 hover:text-rose-500"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
                 {isOpen && (
                   <div className="px-5 pb-4 pt-1">
-                    <label className="block text-[10px] text-slate-400 mb-1 uppercase tracking-wide">Search</label>
-                    <input
-                      type="text"
-                      value={val?.value ?? ""}
-                      onChange={(e) => setText(field.key, e.target.value)}
-                      placeholder={`Search ${field.label.toLowerCase()}...`}
-                      className="w-full h-8 rounded-md border border-slate-200 px-2.5 text-[13px] text-slate-700 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-100 transition"
-                    />
+                    {(field.key === "id" || field.key === "customer" || field.key === "status" || field.key === "feedback") && (
+                      <>
+                        <label className="block text-[10px] text-slate-400 mb-1 uppercase tracking-wide">Search</label>
+                        <input
+                          type="text"
+                          value={draft.text[field.key]?.value ?? ""}
+                          onChange={(e) => setText(field.key as "id" | "customer" | "status" | "feedback", e.target.value)}
+                          placeholder={`Search ${field.label.toLowerCase()}...`}
+                          className="w-full h-8 rounded-md border border-slate-200 px-2.5 text-[13px] text-slate-700 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-100 transition"
+                        />
+                      </>
+                    )}
+
+                    {(field.key === "authenticated" || field.key === "count") && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] text-slate-400 mb-1 uppercase tracking-wide">Min</label>
+                          <input
+                            type="number"
+                            value={draft.numberRange[field.key]?.min ?? ""}
+                            onChange={(e) => setNumberRange(field.key as "authenticated" | "count", "min", e.target.value)}
+                            placeholder="Min"
+                            className="w-full h-8 rounded-md border border-slate-200 px-2.5 text-[13px] text-slate-700 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-100 transition"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-slate-400 mb-1 uppercase tracking-wide">Max</label>
+                          <input
+                            type="number"
+                            value={draft.numberRange[field.key]?.max ?? ""}
+                            onChange={(e) => setNumberRange(field.key as "authenticated" | "count", "max", e.target.value)}
+                            placeholder="Max"
+                            className="w-full h-8 rounded-md border border-slate-200 px-2.5 text-[13px] text-slate-700 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-100 transition"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {field.key === "date" && (
+                      <div className="grid grid-cols-1 gap-2">
+                        <div>
+                          <label className="block text-[10px] text-slate-400 mb-1 uppercase tracking-wide">From</label>
+                          <input
+                            type="date"
+                            value={draft.dateRange.date?.from ?? ""}
+                            onChange={(e) => setDateRange("from", e.target.value)}
+                            className="w-full h-8 rounded-md border border-slate-200 px-2.5 text-[13px] text-slate-700 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-100 transition"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-slate-400 mb-1 uppercase tracking-wide">To</label>
+                          <input
+                            type="date"
+                            value={draft.dateRange.date?.to ?? ""}
+                            onChange={(e) => setDateRange("to", e.target.value)}
+                            className="w-full h-8 rounded-md border border-slate-200 px-2.5 text-[13px] text-slate-700 outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-100 transition"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {field.key === "rating" && (
+                      <>
+                        <label className="block text-[10px] text-slate-400 mb-1 uppercase tracking-wide">Exact Rating</label>
+                        <select
+                          value={draft.rating.rating?.value ?? ""}
+                          onChange={(e) => setRating(e.target.value)}
+                          className="w-full h-8 rounded-md border border-slate-200 px-2.5 text-[13px] text-slate-700 bg-white outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-100 transition"
+                        >
+                          <option value="">Select rating</option>
+                          <option value="1">1 Star</option>
+                          <option value="2">2 Stars</option>
+                          <option value="3">3 Stars</option>
+                          <option value="4">4 Stars</option>
+                          <option value="5">5 Stars</option>
+                        </select>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -301,7 +472,7 @@ function SidebarFilter({ open, onClose, filters, onApply, onClearAll }: {
 
 export default function CSRPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [tableData, setTableData] = useState<CSRRow[] | undefined>(undefined)
+  const [tableData, setTableData] = useState<CSRRow[]>(defaultFeedbackData)
   const [fileName, setFileName] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeFilters, setActiveFilters] = useState<CSRActiveFilters>(csrEmptyFilters())
@@ -316,10 +487,11 @@ export default function CSRPage() {
     setSortKey(null); setSortDirection(null)
   }
 
+  // IMPORTANT: Export now always uses the same parent-owned data shown in table.
   const handleExportCSV = () => {
-    const source = tableData ?? []
+    const source = tableData
     const headers = ["S.N.","ID","Customer","Email","Authenticated","Count","Feedback","Document Name","Date","Status","Rating"]
-    const rows = source.map((row, index) => [index + 1, row.id, row.customer, row.email, row.authenticated ? "Verified" : "Unverified", row.count, row.feedback, row.documentName ?? "", row.date, row.status, row.rating])
+    const rows = source.map((row, index) => [index + 1, row.id, row.customer, row.email, row.authenticated, row.count, row.feedback, row.documentName ?? "", row.date, row.status, row.rating])
     const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")).join("\n")
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
     const url = URL.createObjectURL(blob)
@@ -330,6 +502,79 @@ export default function CSRPage() {
   }
 
   const handleExportPDF = () => window.print()
+
+  // NEW: child row updates flow back to parent to keep export and table in sync
+  const handleRemoveDocument = (id: string) => {
+    setTableData((prev) => prev.map((row) => (row.id === id ? { ...row, documentName: undefined } : row)))
+  }
+
+  // ─── Active filter chips (all types) ────────────────────────────────────────
+  const activeFilterChips = useMemo(() => {
+    const chips: { id: string; label: string; onRemove: () => void }[] = []
+
+    // text chips
+    ;(Object.entries(activeFilters.text) as [keyof CSRActiveFilters["text"], CSRTextFilter][]).forEach(([key, f]) => {
+      if (!f || f.value.trim() === "") return
+      const label = FILTER_FIELDS.find((x) => x.key === key)?.label ?? key
+      chips.push({
+        id: `text-${key}`,
+        label: `${label}: "${f.value}"`,
+        onRemove: () => {
+          const n = JSON.parse(JSON.stringify(activeFilters)) as CSRActiveFilters
+          delete n.text[key]
+          setActiveFilters(n)
+        },
+      })
+    })
+
+    // number range chips
+    ;(Object.entries(activeFilters.numberRange) as [keyof CSRActiveFilters["numberRange"], CSRNumberRangeFilter][]).forEach(([key, f]) => {
+      if (!f) return
+      const min = f.min?.trim() ?? ""
+      const max = f.max?.trim() ?? ""
+      if (!min && !max) return
+      const label = FILTER_FIELDS.find((x) => x.key === key)?.label ?? key
+      chips.push({
+        id: `range-${key}`,
+        label: `${label}: ${min || "Any"} - ${max || "Any"}`,
+        onRemove: () => {
+          const n = JSON.parse(JSON.stringify(activeFilters)) as CSRActiveFilters
+          delete n.numberRange[key]
+          setActiveFilters(n)
+        },
+      })
+    })
+
+    // date chip
+    const dateFilter = activeFilters.dateRange.date
+    if (dateFilter && ((dateFilter.from ?? "").trim() !== "" || (dateFilter.to ?? "").trim() !== "")) {
+      chips.push({
+        id: "date-range",
+        label: `Date: ${dateFilter.from || "Any"} → ${dateFilter.to || "Any"}`,
+        onRemove: () => {
+          const n = JSON.parse(JSON.stringify(activeFilters)) as CSRActiveFilters
+          delete n.dateRange.date
+          setActiveFilters(n)
+        },
+      })
+    }
+
+    // rating chip
+    const ratingFilter = activeFilters.rating.rating
+    if (ratingFilter && (ratingFilter.value ?? "").trim() !== "") {
+      chips.push({
+        id: "rating",
+        label: `Rating: ${ratingFilter.value} Star${ratingFilter.value === "1" ? "" : "s"}`,
+        onRemove: () => {
+          const n = JSON.parse(JSON.stringify(activeFilters)) as CSRActiveFilters
+          delete n.rating.rating
+          setActiveFilters(n)
+        },
+      })
+    }
+
+    return chips
+  }, [activeFilters])
 
   return (
     <div className="flex flex-1 flex-col">
@@ -358,18 +603,14 @@ export default function CSRPage() {
               {/* Active filter chips */}
               {filterBadgeCount > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {(Object.entries(activeFilters.text) as [CSRFilterFieldKey, CSRTextFilter][]).map(([key, f]) => {
-                    if (!f || f.value.trim() === "") return null
-                    const label = FILTER_FIELDS.find((x) => x.key === key)?.label ?? key
-                    return (
-                      <span key={key} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-[11px] text-slate-600 font-medium">
-                        {label}: "{f.value}"
-                        <button onClick={() => { const n = JSON.parse(JSON.stringify(activeFilters)) as CSRActiveFilters; delete n.text[key]; setActiveFilters(n) }} className="text-slate-400 hover:text-rose-500 transition-colors">
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    )
-                  })}
+                  {activeFilterChips.map((chip) => (
+                    <span key={chip.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-[11px] text-slate-600 font-medium">
+                      {chip.label}
+                      <button onClick={chip.onRemove} className="text-slate-400 hover:text-rose-500 transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
                   <button onClick={() => setActiveFilters(csrEmptyFilters())} className="text-[11px] text-rose-500 hover:text-rose-700 font-medium transition-colors">Clear all</button>
                 </div>
               )}
@@ -386,7 +627,7 @@ export default function CSRPage() {
                 onClick={() => setSidebarOpen(true)}
                 className={`flex items-center gap-2 ${filterBadgeCount > 0 ? "border-rose-300 text-rose-600 bg-rose-50 hover:bg-rose-100" : ""}`}
               >
-                <SlidersHorizontal className="h-4 w-4" />
+                <SlidersHorizontal className="h-4 w-4 text-slate-700" />
                 Filters
                 {filterBadgeCount > 0 && (
                   <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold">{filterBadgeCount}</span>
@@ -397,7 +638,7 @@ export default function CSRPage() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="flex items-center gap-2">
-                    <Download className="h-4 w-4" />
+                    <Download className="h-4 w-4 text-slate-700" />
                     Export
                   </Button>
                 </DropdownMenuTrigger>
@@ -415,6 +656,7 @@ export default function CSRPage() {
             sortKey={sortKey}
             sortDirection={sortDirection}
             onSort={handleSort}
+            onRemoveDocument={handleRemoveDocument}
           />
 
         </div>
