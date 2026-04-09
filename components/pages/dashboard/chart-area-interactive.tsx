@@ -455,7 +455,7 @@ export function CentreStats() {
 
   const dynamicOrderOptions = useMemo(() => {
     const baseOptions = [
-      { label: "Default", value: "default" as OrderByKey },
+      { label: "Select", value: "default" as OrderByKey },
       { label: "Total", value: "TotalVal" as OrderByKey },
       { label: "Appeared", value: "AppearedVal" as OrderByKey },
       { label: "Percentage", value: "Percentage" as OrderByKey },
