@@ -690,7 +690,7 @@ export default function DataTable() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-white px-8 py-2 font-[Geist,system-ui,sans-serif]">
+    <div className="min-h-screen bg-white px-8 pt-1 pb-2 font-[Geist,system-ui,sans-serif]">
 
       {/* Sidebar */}
       <SidebarFilter
@@ -700,6 +700,11 @@ export default function DataTable() {
         onApply={handleApplyFilters}
         onClearAll={handleClearAllFilters}
       />
+
+      {/* Heading */}
+      <div className="mb-2">
+        <h1 className="text-xl font-semibold text-slate-800">Exams Record</h1>
+      </div>
 
       {/* Top controls */}
       <div className="flex justify-between gap-3 items-center mb-4 flex-wrap">
@@ -922,7 +927,7 @@ export default function DataTable() {
                         {row.csr}⭐
                       </span>
                     )} */}
-                    {row.csr}⭐
+                    {row.csr}★
                   </td>
 
                   <td className="px-2 py-3 text-center text-[12px] text-slate-700">{row.duplicate}</td>
