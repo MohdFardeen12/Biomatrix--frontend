@@ -155,7 +155,7 @@
 
 //   const chartData: ChartRow[] = useMemo(() => {
 //     let data = rawData.map((d) => ({
-//       label: view === "city" ? d.city : d.centre,
+//       label: view === "city" ? d.: d.centre,
 //       TotalVal: d.TotalVal,
 //       AppearedVal: d.AppearedVal,
 //       Percentage: d.Percentage,
